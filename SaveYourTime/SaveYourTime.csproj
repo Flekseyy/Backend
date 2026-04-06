@@ -30,4 +30,10 @@
       <Folder Include="Application\Interfaces\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Api\" />
+      <Folder Include="Application\" />
+      <Folder Include="Infrastructure\" />
+    </ItemGroup>
+
 </Project>
