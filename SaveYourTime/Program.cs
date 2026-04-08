@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.Domain.Interface;
+using WebApplication1.Domain.Interfaces.Repositories;
 using WebApplication1.Infrastructure.Contexts;
 using WebApplication1.Infrastructure.Middlewares;
 using WebApplication1.Infrastructure.Repositories;
