@@ -1,12 +1,17 @@
-﻿namespace WebApplication1.Domain.Interface;
+﻿using WebApplication1.Domain.Object;
 
-public interface IUserRepositories
+
+namespace WebApplication1.Domain.Interface;
+
+public interface IUserRepository
 {
-    Task<User?> GetByUsername(string username);
-    Task<User?> GetByEmail(string email);
-    Task<User?> GetById(string id);
-    Task<IEnumerable<User>> GetAll();
-    Task<User> Create(User user);
-    Task<User> Update(User user);
-    Task Delete(string id);
+    Task<User?> GetByIdAsync(int id);
+    Task<User?> GetByUsernameAsync(string username);
+    Task<User?> GetByEmailAsync(string email);
+    Task<User> CreateAsync(User user);
+    Task UpdateAsync(User user);
+    Task DeleteAsync(int id);
+    Task<bool> ExistsByUsernameAsync(string username);
+    Task<bool> ExistsByEmailAsync(string email);
+    Task UpdateLastLoginAsync(int userId);
 }
