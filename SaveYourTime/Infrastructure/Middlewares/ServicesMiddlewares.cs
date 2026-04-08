@@ -1,5 +1,5 @@
+using WebApplication1.Application.Interfaces;
 using WebApplication1.Application.Services;
-using WebApplication1.Domain.Interfaces.Services;
 
 namespace WebApplication1.Infrastructure.Middlewares;
 

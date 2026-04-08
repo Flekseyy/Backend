@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebApplication1.Application.Controllers;
+namespace WebApplication1.Controllers;
 
 public class MeController : ControllerBase
 {
@@ -9,6 +9,7 @@ public class MeController : ControllerBase
     {
         return Ok(new MyClassResponse(myClass.Id.ToString(), myClass.Id+123));
     }
+
 }
 
 public class MyClass
