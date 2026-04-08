@@ -1,7 +1,6 @@
 ﻿using WebApplication1.Domain.Object;
 
-
-namespace WebApplication1.Domain.Interface;
+namespace WebApplication1.Domain.Interfaces.Repositories;
 
 
 public interface IUserRepository
