@@ -6,8 +6,6 @@
 # dotenv files
 .env
 
-./SaveYourTime/bin
-./SaveYourTime/obj
 
 # User-specific files
 *.rsuser
