@@ -1,6 +1,7 @@
-﻿namespace WebApplication1.Infrastructure.Data;
+﻿using Microsoft.EntityFrameworkCore;
 using WebApplication1.Domain.Object;
-using Microsoft.EntityFrameworkCore;
+
+namespace WebApplication1.Infrastructure.Contexts;
 public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -10,9 +11,9 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>()
-            .HasIndex(u => u.Username).IsUnique();
-        modelBuilder.Entity<User>()
-            .HasIndex(u => u.Email).IsUnique();
+        // modelBuilder.Entity<User>()
+        //     .HasIndex(u => u.Username).IsUnique();
+        // modelBuilder.Entity<User>()
+        //     .HasIndex(u => u.Email).IsUnique();
     }
 }
