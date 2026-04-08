@@ -6,8 +6,6 @@
 # dotenv files
 .env
 
-**/bin/
-**/obj/
 
 # User-specific files
 *.rsuser
@@ -485,5 +483,3 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
-SaveYourTime/obj/
-SaveYourTime/bin/
