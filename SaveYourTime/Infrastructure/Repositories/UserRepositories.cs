@@ -1,21 +1,43 @@
-﻿using WebApplication1.Infrastructure.Contexts;
+﻿namespace WebApplication1.Infrastructure.Repositories;
 
-namespace WebApplication1.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Domain.Interface;
 using WebApplication1.Domain.Object;
+using WebApplication1.Infrastructure.Data;
+
 
 public class UserRepository : IUserRepository
 {
     private readonly ApplicationDbContext _context;
 
-    public UserRepository(ApplicationDbContext context) => _context = context;
+    public UserRepository(ApplicationDbContext context)
+    {
+        _context = context;
+    }
 
-    public async Task<User?> GetByUsernameAsync(string username) =>
-        await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+    public async Task<User?> GetByIdAsync(int id)
+    {
+        return await _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Team)
+            .FirstOrDefaultAsync(u => u.Id == id);
+    }
 
-    public async Task<User?> GetByEmailAsync(string email) =>
-        await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+    public async Task<User?> GetByUsernameAsync(string username)
+    {
+        return await _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Team)
+            .FirstOrDefaultAsync(u => u.Username == username);
+    }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Team)
+            .FirstOrDefaultAsync(u => u.Email == email);
+    }
 
     public async Task<User> CreateAsync(User user)
     {
@@ -24,9 +46,39 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-    public async Task<bool> ExistsByUsernameAsync(string username) =>
-        await _context.Users.AnyAsync(u => u.Username == username);
+    public async Task UpdateAsync(User user)
+    {
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+    }
 
-    public async Task<bool> ExistsByEmailAsync(string email) =>
-        await _context.Users.AnyAsync(u => u.Email == email);
+    public async Task DeleteAsync(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user != null)
+        {
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task<bool> ExistsByUsernameAsync(string username)
+    {
+        return await _context.Users.AnyAsync(u => u.Username == username);
+    }
+
+    public async Task<bool> ExistsByEmailAsync(string email)
+    {
+        return await _context.Users.AnyAsync(u => u.Email == email);
+    }
+
+    public async Task UpdateLastLoginAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user != null)
+        {
+            user.LastLoginAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+    }
 }

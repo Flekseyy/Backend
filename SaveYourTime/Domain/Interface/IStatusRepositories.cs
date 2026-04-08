@@ -1,7 +1,9 @@
-﻿namespace WebApplication1.Domain.Interface;
+﻿using WebApplication1.Domain.Object;
 
-public interface IStatusRepositories
+namespace WebApplication1.Domain.Interface;
+
+public interface IStatusRepository
 {
-    Task<IEnumerable<Status>> GetAll();
-    Task<Status?> GetById(string id);
+    Task<IEnumerable<Status>> GetAllAsync();
+    Task<Status?> GetByIdAsync(int id);
 }
