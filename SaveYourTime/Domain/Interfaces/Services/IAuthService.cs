@@ -1,11 +1,8 @@
-﻿using WebApplication1.Application.DTOs.Inputs;
-using WebApplication1.Application.DTOs.Responses;
+﻿using WebApplication1.Application.DTOs;
 
-namespace WebApplication1.Domain.Interfaces.Services;
+namespace WebApplication1.Application.Interfaces;
 
 public interface IAuthService
 {
-    Task<UserResponse> RegisterAsync(UserInput input);
-    Task<UserResponse> LoginAsync(string usernameOrEmail, string password);
-    Task LogoutAsync(int userId);
+    Task<AuthResponse> RegisterAsync(RegisterInput input);
 }

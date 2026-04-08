@@ -1,3 +1,6 @@
-﻿namespace WebApplication1.Application.DTOs.Responses;
+﻿namespace WebApplication1.Application.DTOs;
 
-public record LoginInput(string UsernameOrEmail, string Password);
+public record LoginInput(
+    string UsernameOrEmail,
+    string Password
+);
