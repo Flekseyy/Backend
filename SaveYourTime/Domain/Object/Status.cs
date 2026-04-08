@@ -1,7 +1,9 @@
-﻿namespace WebApplication1.Domain;
+﻿namespace WebApplication1.Domain.Object;                                        
 
 public class Status
 {
-    public string Id  { get; set; } = string.Empty;
-    public string Name  { get; set; } = string.Empty;
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    
+    public ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
 }
