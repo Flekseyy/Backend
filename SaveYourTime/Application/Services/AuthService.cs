@@ -3,7 +3,7 @@ using WebApplication1.Application.DTOs.Inputs;
 using WebApplication1.Application.DTOs.Responses;
 using WebApplication1.Domain.Interfaces.Repositories;
 using WebApplication1.Domain.Interfaces.Services;
-using WebApplication1.Domain.Object;
+using WebApplication1.Domain.Models;
 using WebApplication1.Infrastructure.Utils;
 
 namespace WebApplication1.Application.Services;
