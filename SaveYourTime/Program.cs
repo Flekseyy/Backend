@@ -1,13 +1,17 @@
-using Microsoft.EntityFrameworkCore;
-using WebApplication1.Domain.Interface;
-using WebApplication1.Infrastructure.Contexts;
-using WebApplication1.Infrastructure.Middlewares;
-using WebApplication1.Infrastructure.Repositories;
 
+using WebApplication1.Application.Interfaces;
+using WebApplication1.Application.Services;
+using WebApplication1.Domain.Interface;
+using WebApplication1.Infrastructure.Data;
+using WebApplication1.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>
@@ -19,32 +23,22 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseNpgsql(builder.Configuration.GetConnectionString("ConnectionStrings"));
-});
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-builder.Services.ConfigureServices(builder.Configuration);
-
-builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<ApplicationDbContext>( _ =>
+builder.Services.AddScoped<IUserRepository, UserRepository>());
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.EnsureCreated();
+}
 
 app.UseHttpsRedirection();
-
 app.UseCors("AllowReactApp");
-app.UseSwagger();
-app.UseSwaggerUI(options =>
-{
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-});
-
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

@@ -1,9 +1,10 @@
-﻿using WebApplication1.Infrastructure.Contexts;
+﻿namespace WebApplication1.Infrastructure.Repositories;
 
-namespace WebApplication1.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Domain.Interface;
 using WebApplication1.Domain.Object;
+using WebApplication1.Infrastructure.Data;
+
 
 public class UserRepository : IUserRepository
 {

@@ -1,6 +1,7 @@
-﻿using WebApplication1.Domain.Models;
+﻿using WebApplication1.Domain.Object;
 
-namespace WebApplication1.Domain.Interfaces.Repositories;
+
+namespace WebApplication1.Domain.Interface;
 
 
 public interface IUserRepository

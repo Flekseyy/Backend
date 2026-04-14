@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace WebApplication1.Infrastructure.Utils;
+namespace WebApplication1.Infrastructure.Services;
 
 public static class PasswordHasher
 {
