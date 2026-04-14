@@ -1,4 +1,4 @@
-﻿namespace WebApplication1.Domain.Models;
+﻿namespace WebApplication1.Domain.Object;
 
 public class User
 {

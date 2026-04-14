@@ -1,7 +1,6 @@
 ﻿using WebApplication1.Application.DTOs;
-using WebApplication1.Application.DTOs.Responses;
 
-namespace WebApplication1.Domain.Interfaces.Services;
+namespace WebApplication1.Application.Interfaces;
 
 public interface IAuthService
 {
