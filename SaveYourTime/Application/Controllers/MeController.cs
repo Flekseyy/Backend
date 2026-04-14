@@ -9,7 +9,6 @@ public class MeController : ControllerBase
     {
         return Ok(new MyClassResponse(myClass.Id.ToString(), myClass.Id+123));
     }
-
 }
 
 public class MyClass
