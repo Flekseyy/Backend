@@ -25,6 +25,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAssignmentRepository, AssignmentRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();    
+builder.Services.AddScoped<ITeamRepository, TeamRepository>(); 
 
 builder.Services.ConfigureServices(builder.Configuration);
 
