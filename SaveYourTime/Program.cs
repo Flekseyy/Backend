@@ -17,10 +17,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins("http://localhost:5432")
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials()); // ✅ Важно для cookies
+            .AllowCredentials()); 
 });
 
 // BD
