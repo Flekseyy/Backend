@@ -40,7 +40,9 @@ public class AuthService : IAuthService
             Email = input.Email,
             PasswordHash = PasswordHasher.Hash(input.Password),
             RoleId = input.RoleId ?? 2, 
-            TeamId = input.TeamId,
+            TeamId = input.TeamId == 0
+                ? null
+                : input.TeamId,
             CreatedAt = DateTime.UtcNow
         };
 

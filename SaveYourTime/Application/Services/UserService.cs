@@ -23,7 +23,7 @@ public class UserService : IUserService
         _teamRepository = teamRepository;
     }
 
-    
+
     public async Task<UserResponse?> GetByIdAsync(int id)
     {
         var user = await _userRepository.GetByIdAsync(id);
@@ -47,7 +47,7 @@ public class UserService : IUserService
         var users = await _userRepository.GetByFilterAsync(username, roleId);
         return users.Select(MapToResponse);
     }
-    
+
     public async Task<UserResponse> CreateAsync(UserInput input)
     {
         if (await _userRepository.ExistsByUsernameAsync(input.Username))
@@ -76,7 +76,9 @@ public class UserService : IUserService
             Email = input.Email,
             PasswordHash = PasswordHasher.Hash(input.Password),
             RoleId = input.RoleId,
-            TeamId = input.TeamId,
+            TeamId = input.TeamId == 0
+                ? null
+                : input.TeamId,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -135,7 +137,7 @@ public class UserService : IUserService
         var user = await _userRepository.GetByIdAsync(userId);
         return MapToResponse(user!);
     }
-    
+
     private UserResponse MapToResponse(User user)
     {
         return new UserResponse(
