@@ -69,6 +69,7 @@ public class AssignmentService : IAssignmentService
 
         var assignment = new Assignment
         {
+            AssignmentInfo =  assignmentInfo,
             UserId = input.UserId,
             AssignmentStatusId = input.AssignmentStatusId,
             AssignmentInfoId = 0,

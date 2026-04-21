@@ -11,7 +11,7 @@ public class UserRepository : IUserRepository
 
     public UserRepository(ApplicationDbContext context) => _context = context;
     
-    public async Task<User?> GetByIdAsync(int id)
+    public async Task<User?> GetByIdAsync(int? id)
     {
         return await _context.Users
             .Include(u => u.Role)
@@ -27,7 +27,7 @@ public class UserRepository : IUserRepository
             .ToListAsync();
     }
     
-    public async Task<IEnumerable<User>> GetByTeamIdAsync(int teamId)
+    public async Task<IEnumerable<User>> GetByTeamIdAsync(int? teamId)
     {
         return await _context.Users
             .Include(u => u.Role)

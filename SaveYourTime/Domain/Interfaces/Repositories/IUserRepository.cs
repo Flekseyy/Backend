@@ -4,9 +4,9 @@ namespace WebApplication1.Domain.Interfaces.Repositories;
 
 public interface IUserRepository
 {
-    Task<User?> GetByIdAsync(int id);
+    Task<User?> GetByIdAsync(int? id);
     Task<IEnumerable<User>> GetAllAsync();
-    Task<IEnumerable<User>> GetByTeamIdAsync(int teamId);
+    Task<IEnumerable<User>> GetByTeamIdAsync(int? teamId);
     Task<IEnumerable<User>> GetByFilterAsync(string? username, int? roleId);
     Task<User> CreateAsync(User user);
     Task UpdateAsync(User user);

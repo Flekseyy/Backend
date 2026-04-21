@@ -50,7 +50,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var response = await _authService.LoginAsync(input.UsernameOrEmail, input.Password);
+            var response = await _authService.LoginAsync(input.Email, input.Password);
 
             await SetAuthCookie(response.Id, response.Username, response.Email, DateTime.UtcNow.AddDays(7));
 

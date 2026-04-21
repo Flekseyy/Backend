@@ -60,6 +60,7 @@ public class AssignmentRepository : IAssignmentRepository
     
     public async Task<Assignment> CreateAsync(Assignment assignment)
     {
+        _context.AssignmentInfos.Add(assignment.AssignmentInfo);
         _context.Assignments.Add(assignment);
         await _context.SaveChangesAsync();
         return assignment;
