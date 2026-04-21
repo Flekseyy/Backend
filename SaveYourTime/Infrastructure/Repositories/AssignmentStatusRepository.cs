@@ -14,6 +14,6 @@ public class AssignmentStatusRepository : IAssignmentStatusRepository
     public async Task<IEnumerable<AssignmentStatus>> GetAllAsync() =>
         await _context.AssignmentStatuses.ToListAsync();
 
-    public async Task<AssignmentStatus?> GetByIdAsync(int id) =>
+    public async Task<AssignmentStatus?> GetByIdAsync(int? id) =>
         await _context.AssignmentStatuses.FindAsync(id);
 }

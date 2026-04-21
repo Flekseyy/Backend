@@ -8,7 +8,7 @@ namespace WebApplication1.Application.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] 
+
 public class AssignmentController : ControllerBase
 {
     private readonly IAssignmentService _assignmentService;
