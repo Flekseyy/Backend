@@ -4,6 +4,6 @@ public record UserInput(
     string Username,
     string Email,
     string Password,
-    int? RoleId,
-    int? TeamId
+    int? RoleId = 2,
+    int? TeamId = null
 );

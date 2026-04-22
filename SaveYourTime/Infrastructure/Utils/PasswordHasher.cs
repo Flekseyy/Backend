@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace WebApplication1.Infrastructure.Services;
+namespace WebApplication1.Infrastructure.Utils;
 
 public static class PasswordHasher
 {
@@ -10,13 +10,7 @@ public static class PasswordHasher
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(salt);
 
-        var hash = new byte[32];
-        using var pbkdf2 = new Rfc2898DeriveBytes(
-            password, 
-            salt, 
-            100_000, 
-            HashAlgorithmName.SHA256);
-        hash = pbkdf2.GetBytes(32);
+        var hash = new Rfc2898DeriveBytes(password, salt, 100_000, HashAlgorithmName.SHA256).GetBytes(32);
 
         var hashBytes = new byte[64];
         Array.Copy(salt, 0, hashBytes, 0, 32);
@@ -31,18 +25,10 @@ public static class PasswordHasher
         var salt = new byte[32];
         Array.Copy(hashBytes, 0, salt, 0, 32);
 
-        using var pbkdf2 = new Rfc2898DeriveBytes(
-            password, 
-            salt, 
-            100000, 
-            HashAlgorithmName.SHA256);
-        var hash = pbkdf2.GetBytes(32);
+        var hash = new Rfc2898DeriveBytes(password, salt, 100_000, HashAlgorithmName.SHA256).GetBytes(32);
 
         for (int i = 0; i < 32; i++)
-        {
-            if (hash[i] != hashBytes[i + 32])
-                return false;
-        }
+            if (hash[i] != hashBytes[i + 32]) return false;
 
         return true;
     }

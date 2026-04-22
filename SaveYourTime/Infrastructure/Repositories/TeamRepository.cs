@@ -10,24 +10,20 @@ public class TeamRepository : ITeamRepository
     private readonly ApplicationDbContext _context;
 
     public TeamRepository(ApplicationDbContext context) => _context = context;
-    
-    public async Task<IEnumerable<Team>> GetAllAsync()
-    {
-        return await _context.Teams
+
+    public async Task<IEnumerable<Team>> GetAllAsync() =>
+        await _context.Teams
             .Include(t => t.Leader)
             .Include(t => t.Members)
             .Include(t => t.Assignments)
             .ToListAsync();
-    }
-    
-    public async Task<Team?> GetByIdAsync(int id)
-    {
-        return await _context.Teams
+
+    public async Task<Team?> GetByIdAsync(int id) =>
+        await _context.Teams
             .Include(t => t.Leader)
             .Include(t => t.Members)
             .Include(t => t.Assignments)
             .FirstOrDefaultAsync(t => t.Id == id);
-    }
 
     public async Task<IEnumerable<User>> GetUsersInTeamAsync(int teamId)
     {
@@ -37,17 +33,15 @@ public class TeamRepository : ITeamRepository
 
         return team?.Members ?? Enumerable.Empty<User>();
     }
-    
-    public async Task<IEnumerable<Assignment>> GetAssignmentsInTeamAsync(int teamId)
-    {
-        return await _context.Assignments
+
+    public async Task<IEnumerable<Assignment>> GetAssignmentsInTeamAsync(int teamId) =>
+        await _context.Assignments
             .Include(a => a.User)
-            .Include(a => a.AssignmentStatus)
-            .Include(a => a.AssignmentInfo)
+            .Include(a => a.Status)
+            .Include(a => a.Priority)
             .Where(a => a.TeamId == teamId)
             .ToListAsync();
-    }
-    
+
     public async Task<Team> CreateAsync(Team team)
     {
         _context.Teams.Add(team);

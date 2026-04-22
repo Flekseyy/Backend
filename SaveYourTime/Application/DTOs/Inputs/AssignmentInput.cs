@@ -3,10 +3,7 @@
 public record AssignmentInput(
     string Title,
     string? Description,
-    int? UserId,
-    int? AssignmentStatusId,
-    int? TeamId,
-    DateTime? DueDate,
+    string Priority,
     DateTime? Deadline,
-    string? Priority
+    int? TeamId = null
 );

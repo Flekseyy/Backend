@@ -10,51 +10,29 @@ public class UserRepository : IUserRepository
     private readonly ApplicationDbContext _context;
 
     public UserRepository(ApplicationDbContext context) => _context = context;
-    
-    public async Task<User?> GetByIdAsync(int? id)
-    {
-        return await _context.Users
-            .Include(u => u.Role)
-            .Include(u => u.Team)
-            .FirstOrDefaultAsync(u => u.Id == id);
-    }
 
-    public async Task<IEnumerable<User>> GetAllAsync()
-    {
-        return await _context.Users
-            .Include(u => u.Role)
-            .Include(u => u.Team)
-            .ToListAsync();
-    }
-    
-    public async Task<IEnumerable<User>> GetByTeamIdAsync(int? teamId)
-    {
-        return await _context.Users
-            .Include(u => u.Role)
-            .Where(u => u.TeamId == teamId)
-            .ToListAsync();
-    }
+    public async Task<User?> GetByIdAsync(int? id) =>
+        await _context.Users.Include(u => u.Role).Include(u => u.Team).FirstOrDefaultAsync(u => u.Id == id);
+
+    public async Task<IEnumerable<User>> GetAllAsync() =>
+        await _context.Users.Include(u => u.Role).Include(u => u.Team).ToListAsync();
+
+    public async Task<IEnumerable<User>> GetByTeamIdAsync(int? teamId) =>
+        await _context.Users.Include(u => u.Role).Where(u => u.TeamId == teamId).ToListAsync();
 
     public async Task<IEnumerable<User>> GetByFilterAsync(string? username, int? roleId)
     {
-        var query = _context.Users
-            .Include(u => u.Role)
-            .Include(u => u.Team)
-            .AsQueryable();
+        var query = _context.Users.Include(u => u.Role).Include(u => u.Team).AsQueryable();
         
         if (!string.IsNullOrEmpty(username))
-        {
             query = query.Where(u => u.Username.Contains(username));
-        }
         
         if (roleId.HasValue)
-        {
             query = query.Where(u => u.RoleId == roleId.Value);
-        }
 
         return await query.ToListAsync();
     }
-    
+
     public async Task<User> CreateAsync(User user)
     {
         _context.Users.Add(user);
@@ -67,7 +45,7 @@ public class UserRepository : IUserRepository
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
     }
-    
+
     public async Task DeleteAsync(int id)
     {
         var user = await _context.Users.FindAsync(id);
@@ -77,7 +55,7 @@ public class UserRepository : IUserRepository
             await _context.SaveChangesAsync();
         }
     }
-    
+
     public async Task ChangeRoleAsync(int userId, int? roleId)
     {
         var user = await _context.Users.FindAsync(userId);
@@ -87,7 +65,7 @@ public class UserRepository : IUserRepository
             await _context.SaveChangesAsync();
         }
     }
-    
+
     public async Task AddToTeamAsync(int userId, int teamId)
     {
         var user = await _context.Users.FindAsync(userId);
@@ -97,7 +75,7 @@ public class UserRepository : IUserRepository
             await _context.SaveChangesAsync();
         }
     }
-    
+
     public async Task RemoveFromTeamAsync(int userId)
     {
         var user = await _context.Users.FindAsync(userId);
@@ -107,7 +85,7 @@ public class UserRepository : IUserRepository
             await _context.SaveChangesAsync();
         }
     }
-    
+
     public async Task<User?> GetByUsernameAsync(string username) =>
         await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
 

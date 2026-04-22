@@ -9,7 +9,7 @@ public interface ITeamService
     Task<TeamResponse?> GetByIdAsync(int id);
     Task<IEnumerable<UserResponse>> GetUsersInTeamAsync(int teamId);
     Task<IEnumerable<AssignmentResponse>> GetAssignmentsInTeamAsync(int teamId);
-    
+
     Task<TeamResponse> CreateAsync(TeamInput input);
     Task<TeamResponse> UpdateAsync(int id, TeamInput input);
     Task DeleteAsync(int id);
