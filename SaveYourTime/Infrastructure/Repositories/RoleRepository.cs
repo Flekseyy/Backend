@@ -11,24 +11,18 @@ public class RoleRepository : IRoleRepository
 
     public RoleRepository(ApplicationDbContext context) => _context = context;
 
-    public async Task<IEnumerable<Role>> GetAllAsync()
-    {
-        return await _context.Roles.ToListAsync();
-    }
+    public async Task<IEnumerable<Role>> GetAllAsync() =>
+        await _context.Roles.ToListAsync();
 
-    public async Task<Role?> GetByIdAsync(int id)
-    {
-        return await _context.Roles.FindAsync(id);
-    }
+    public async Task<Role?> GetByIdAsync(int id) =>
+        await _context.Roles.FindAsync(id);
 
     public async Task<IEnumerable<Role>> GetByFilterAsync(string? name)
     {
         var query = _context.Roles.AsQueryable();
         
         if (!string.IsNullOrEmpty(name))
-        {
             query = query.Where(r => r.Name.Contains(name));
-        }
 
         return await query.ToListAsync();
     }
@@ -49,7 +43,7 @@ public class RoleRepository : IRoleRepository
             await _context.SaveChangesAsync();
         }
     }
-    
+
     public async Task UpdateAsync(Role role)
     {
         _context.Roles.Update(role);

@@ -14,11 +14,8 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
 
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
-    
+    public AuthController(IAuthService authService) => _authService = authService;
+
     [HttpPost("register")]
     public async Task<ActionResult<UserResponse>> Register([FromBody] UserInput input)
     {
@@ -32,10 +29,9 @@ public class AuthController : ControllerBase
 
             if (string.IsNullOrWhiteSpace(input.Password) || input.Password.Length < 6)
                 return BadRequest("Пароль должен содержать минимум 6 символов");
-            
+
             var response = await _authService.RegisterAsync(input);
-      
-            await SetAuthCookie(response.Id, response.Username, response.Email, DateTime.UtcNow.AddDays(7));
+            await SetAuthCookie(response.Id, response.Username, response.Email);
             
             return Ok(response);
         }
@@ -44,16 +40,15 @@ public class AuthController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-    
+
     [HttpPost("login")]
     public async Task<ActionResult<UserResponse>> Login([FromBody] LoginInput input)
     {
         try
         {
             var response = await _authService.LoginAsync(input.Email, input.Password);
-
-            await SetAuthCookie(response.Id, response.Username, response.Email, DateTime.UtcNow.AddDays(7));
-
+            await SetAuthCookie(response.Id, response.Username, response.Email);
+            
             return Ok(response);
         }
         catch (Exception ex)
@@ -68,7 +63,7 @@ public class AuthController : ControllerBase
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Ok(new { message = "Выход выполнен успешно" });
     }
-    
+
     [HttpGet("me")]
     public ActionResult<UserResponse> GetCurrentUser()
     {
@@ -78,8 +73,8 @@ public class AuthController : ControllerBase
 
         return Ok(new { userId = int.Parse(userId), username = User.Identity?.Name });
     }
-    
-    private async Task SetAuthCookie(int userId, string username, string email, DateTime expiresAt)
+
+    private async Task SetAuthCookie(int userId, string username, string email)
     {
         var claims = new[]
         {
@@ -96,14 +91,11 @@ public class AuthController : ControllerBase
             principal,
             new AuthenticationProperties 
             { 
-                ExpiresUtc = expiresAt, 
+                ExpiresUtc = DateTime.UtcNow.AddDays(7), 
                 IsPersistent = true 
             });
     }
 
-    private bool IsValidEmail(string email)
-    {
-        var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-        return System.Text.RegularExpressions.Regex.IsMatch(email, emailRegex);
-    }
+    private bool IsValidEmail(string email) =>
+        System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
 }

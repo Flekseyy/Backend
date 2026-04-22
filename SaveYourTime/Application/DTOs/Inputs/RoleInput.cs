@@ -2,5 +2,5 @@
 
 public record RoleInput(
     string Name,
-    string? Description
+    string? Description = null
 );

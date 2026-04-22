@@ -9,58 +9,47 @@ public class AssignmentRepository : IAssignmentRepository
 {
     private readonly ApplicationDbContext _context;
 
-    public AssignmentRepository(ApplicationDbContext context)
-    {
-        _context = context;
-    }
-    
-    public async Task<IEnumerable<Assignment>> GetAllAsync()
-    {
-        return await _context.Assignments
-            .Include(a => a.User)
-            .Include(a => a.AssignmentStatus)
-            .Include(a => a.AssignmentInfo)
-            .ToListAsync();
-    }
+    public AssignmentRepository(ApplicationDbContext context) => _context = context;
 
-    public async Task<Assignment?> GetByIdAsync(int id)
-    {
-        return await _context.Assignments
+    public async Task<IEnumerable<Assignment>> GetAllAsync() =>
+        await _context.Assignments
             .Include(a => a.User)
-            .Include(a => a.AssignmentStatus)
-            .Include(a => a.AssignmentInfo)
+            .Include(a => a.Status)
+            .Include(a => a.Priority)
+            .Include(a => a.Team)
+            .ToListAsync();
+
+    public async Task<Assignment?> GetByIdAsync(int id) =>
+        await _context.Assignments
+            .Include(a => a.User)
+            .Include(a => a.Status)
+            .Include(a => a.Priority)
+            .Include(a => a.Team)
             .FirstOrDefaultAsync(a => a.Id == id);
-    }
 
     public async Task<IEnumerable<Assignment>> GetByFilterAsync(string? title, int? statusId, int? userId)
     {
         var query = _context.Assignments
             .Include(a => a.User)
-            .Include(a => a.AssignmentStatus)
-            .Include(a => a.AssignmentInfo)
+            .Include(a => a.Status)
+            .Include(a => a.Priority)
+            .Include(a => a.Team)
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(title))
-        {
-            query = query.Where(a => a.AssignmentInfo.Name!.Contains(title));
-        }
+            query = query.Where(a => a.Title.Contains(title));
 
         if (statusId.HasValue)
-        {
-            query = query.Where(a => a.AssignmentStatusId == statusId.Value);
-        }
+            query = query.Where(a => a.StatusId == statusId.Value);
 
         if (userId.HasValue)
-        {
             query = query.Where(a => a.UserId == userId.Value);
-        }
 
         return await query.ToListAsync();
     }
-    
+
     public async Task<Assignment> CreateAsync(Assignment assignment)
     {
-        _context.AssignmentInfos.Add(assignment.AssignmentInfo);
         _context.Assignments.Add(assignment);
         await _context.SaveChangesAsync();
         return assignment;
@@ -87,7 +76,7 @@ public class AssignmentRepository : IAssignmentRepository
         var assignment = await _context.Assignments.FindAsync(assignmentId);
         if (assignment != null)
         {
-            assignment.AssignmentStatusId = statusId;
+            assignment.StatusId = statusId;
             await _context.SaveChangesAsync();
         }
     }
@@ -107,13 +96,9 @@ public class AssignmentRepository : IAssignmentRepository
         var assignment = await _context.Assignments.FindAsync(assignmentId);
         if (assignment != null)
         {
-            var info = await _context.AssignmentInfos.FindAsync(assignment.AssignmentInfoId);
-            if (info != null)
-            {
-                info.Name = title;
-                info.Description = description;
-                await _context.SaveChangesAsync();
-            }
+            assignment.Title = title;
+            assignment.Description = description;
+            await _context.SaveChangesAsync();
         }
     }
 }

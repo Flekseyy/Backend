@@ -4,12 +4,12 @@ public record AssignmentResponse(
     int Id,
     string Title,
     string? Description,
-    int? UserId,
+    int UserId,
     string UserName,
-    int? AssignmentStatusId,
-    string StatusName,
+    string Status,      
+    string Priority,
     int? TeamId,
     string? TeamName,
-    DateTime? DueDate,
+    DateTime? Deadline,
     DateTime CreatedAt
 );

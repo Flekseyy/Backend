@@ -26,56 +26,34 @@ public class AuthService : IAuthService
 
         if (await _userRepository.ExistsByEmailAsync(input.Email))
             throw new Exception("Email уже зарегистрирован");
-        
-        if (input.RoleId.HasValue)
-        {
-            var role = await _roleRepository.GetByIdAsync(input.RoleId.Value);
-            if (role == null)
-                throw new Exception("Роль не найдена");
-        }
-        
+
         var user = new User
         {
             Username = input.Username,
             Email = input.Email,
             PasswordHash = PasswordHasher.Hash(input.Password),
-            RoleId = input.RoleId ?? 2, 
-            TeamId = input.TeamId == 0
-                ? null
-                : input.TeamId,
+            RoleId = input.RoleId ?? 2,
+            TeamId = input.TeamId,
             CreatedAt = DateTime.UtcNow
         };
 
-        var createdUser = await _userRepository.CreateAsync(user);
-
-        return MapToResponse(createdUser);
+        var created = await _userRepository.CreateAsync(user);
+        return MapToResponse(created);
     }
-    
 
-    public async Task<UserResponse> LoginAsync(string usernameOrEmail, string password)
+    public async Task<UserResponse> LoginAsync(string email, string password)
     {
-        var user = await _userRepository.GetByUsernameAsync(usernameOrEmail)
-            ?? await _userRepository.GetByEmailAsync(usernameOrEmail);
+        var user = await _userRepository.GetByEmailAsync(email);
 
-        if (user == null)
-            throw new Exception("Неверный логин или пароль");
-        
-        if (!PasswordHasher.Verify(password, user.PasswordHash))
-            throw new Exception("Неверный логин или пароль");
-        
+        if (user == null || !PasswordHasher.Verify(password, user.PasswordHash))
+            throw new Exception("Неверный email или пароль");
+
         await _userRepository.UpdateLastLoginAsync(user.Id);
-
         return MapToResponse(user);
     }
 
-    public async Task LogoutAsync(int userId)
-    {
-        await Task.CompletedTask;
-    }
-    
-    private UserResponse MapToResponse(User user)
-    {
-        return new UserResponse(
+    private UserResponse MapToResponse(User user) =>
+        new UserResponse(
             user.Id,
             user.Username,
             user.Email,
@@ -86,5 +64,4 @@ public class AuthService : IAuthService
             user.CreatedAt,
             user.LastLoginAt
         );
-    }
 }

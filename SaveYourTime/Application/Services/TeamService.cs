@@ -21,7 +21,7 @@ public class TeamService : ITeamService
         _userRepository = userRepository;
         _assignmentRepository = assignmentRepository;
     }
-    
+
     public async Task<IEnumerable<TeamResponse>> GetAllAsync()
     {
         var teams = await _teamRepository.GetAllAsync();
@@ -46,14 +46,9 @@ public class TeamService : ITeamService
     public async Task<IEnumerable<AssignmentResponse>> GetAssignmentsInTeamAsync(int teamId)
     {
         var assignments = await _teamRepository.GetAssignmentsInTeamAsync(teamId);
-        return assignments.Select(a => new AssignmentResponse(
-            a.Id, a.AssignmentInfo.Name, a.AssignmentInfo.Description,
-            a.UserId, a.User.Username, a.AssignmentStatusId,
-            a.AssignmentStatus.Name, a.TeamId, a.Team?.Name,
-            a.DueDate, a.CreatedAt
-        ));
+        return assignments.Select(MapAssignmentToResponse);
     }
-    
+
     public async Task<TeamResponse> CreateAsync(TeamInput input)
     {
         if (input.LeaderId.HasValue)
@@ -105,8 +100,8 @@ public class TeamService : ITeamService
     {
         await _teamRepository.RemoveUserFromTeamAsync(userId);
         var user = await _userRepository.GetByIdAsync(userId);
-        var team = user?.TeamId.HasValue == true 
-            ? await _teamRepository.GetByIdAsync(user.TeamId.Value) 
+        var team = user?.TeamId.HasValue == true
+            ? await _teamRepository.GetByIdAsync(user.TeamId.Value)
             : null;
         return MapToResponse(team!);
     }
@@ -142,6 +137,23 @@ public class TeamService : ITeamService
             team.LeaderId,
             team.Leader?.Username,
             team.CreatedAt
+        );
+    }
+
+    private AssignmentResponse MapAssignmentToResponse(Assignment a)
+    {
+        return new AssignmentResponse(
+            a.Id,
+            a.Title,
+            a.Description,
+            a.UserId,
+            a.User.Username,
+            a.Status.Name,
+            a.Priority.Name,
+            a.TeamId,
+            a.Team?.Name,
+            a.Deadline,
+            a.CreatedAt
         );
     }
 }
