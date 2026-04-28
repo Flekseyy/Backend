@@ -12,17 +12,17 @@ public class UserRepository : IUserRepository
     public UserRepository(ApplicationDbContext context) => _context = context;
 
     public async Task<User?> GetByIdAsync(int? id) =>
-        await _context.Users.Include(u => u.Role).Include(u => u.Team).FirstOrDefaultAsync(u => u.Id == id);
+        await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
-    public async Task<IEnumerable<User>> GetAllAsync() =>
-        await _context.Users.Include(u => u.Role).Include(u => u.Team).ToListAsync();
-
-    public async Task<IEnumerable<User>> GetByTeamIdAsync(int? teamId) =>
-        await _context.Users.Include(u => u.Role).Where(u => u.TeamId == teamId).ToListAsync();
+    public IQueryable<User> GetAllAsync() =>
+         _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Teams)
+            .AsQueryable();
 
     public async Task<IEnumerable<User>> GetByFilterAsync(string? username, int? roleId)
     {
-        var query = _context.Users.Include(u => u.Role).Include(u => u.Team).AsQueryable();
+        var query = _context.Users.Include(u => u.Role).Include(u => u.Teams).AsQueryable();
         
         if (!string.IsNullOrEmpty(username))
             query = query.Where(u => u.Username.Contains(username));
@@ -33,11 +33,10 @@ public class UserRepository : IUserRepository
         return await query.ToListAsync();
     }
 
-    public async Task<User> CreateAsync(User user)
+    public async Task CreateAsync(User user)
     {
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
-        return user;
     }
 
     public async Task UpdateAsync(User user)
@@ -66,25 +65,7 @@ public class UserRepository : IUserRepository
         }
     }
 
-    public async Task AddToTeamAsync(int userId, int teamId)
-    {
-        var user = await _context.Users.FindAsync(userId);
-        if (user != null)
-        {
-            user.TeamId = teamId;
-            await _context.SaveChangesAsync();
-        }
-    }
-
-    public async Task RemoveFromTeamAsync(int userId)
-    {
-        var user = await _context.Users.FindAsync(userId);
-        if (user != null)
-        {
-            user.TeamId = null;
-            await _context.SaveChangesAsync();
-        }
-    }
+    
 
     public async Task<User?> GetByUsernameAsync(string username) =>
         await _context.Users.FirstOrDefaultAsync(u => u.Username == username);

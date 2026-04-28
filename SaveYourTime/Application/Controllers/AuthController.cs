@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Application.DTOs.Inputs;
 using WebApplication1.Application.DTOs.Responses;
@@ -30,10 +31,9 @@ public class AuthController : ControllerBase
             if (string.IsNullOrWhiteSpace(input.Password) || input.Password.Length < 6)
                 return BadRequest("Пароль должен содержать минимум 6 символов");
 
-            var response = await _authService.RegisterAsync(input);
-            await SetAuthCookie(response.Id, response.Username, response.Email);
+            await _authService.RegisterAsync(input);
             
-            return Ok(response);
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -58,13 +58,15 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("logout")]
+    [Authorize]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Ok(new { message = "Выход выполнен успешно" });
     }
 
-    [HttpGet("me")]
+    [HttpGet("user-info")]
+    [Authorize]
     public ActionResult<UserResponse> GetCurrentUser()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

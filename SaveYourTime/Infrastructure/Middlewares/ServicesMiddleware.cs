@@ -3,7 +3,7 @@ using WebApplication1.Domain.Interfaces.Services;
 
 namespace WebApplication1.Infrastructure.Middlewares;
 
-public static class ServicesMiddlewares
+public static class ServicesMiddleware
 {
     public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {

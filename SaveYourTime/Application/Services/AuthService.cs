@@ -19,26 +19,23 @@ public class AuthService : IAuthService
         _roleRepository = roleRepository;
     }
 
-    public async Task<UserResponse> RegisterAsync(UserInput input)
+    public async Task RegisterAsync(UserInput input)
     {
-        if (await _userRepository.ExistsByUsernameAsync(input.Username))
-            throw new Exception("Пользователь с таким именем уже существует");
-
         if (await _userRepository.ExistsByEmailAsync(input.Email))
             throw new Exception("Email уже зарегистрирован");
+
+        var roleId = await _roleRepository.GetDefaultRoleId();
 
         var user = new User
         {
             Username = input.Username,
             Email = input.Email,
             PasswordHash = PasswordHasher.Hash(input.Password),
-            RoleId = input.RoleId ?? 2,
-            TeamId = input.TeamId,
+            RoleId = roleId,
             CreatedAt = DateTime.UtcNow
         };
 
-        var created = await _userRepository.CreateAsync(user);
-        return MapToResponse(created);
+        await _userRepository.CreateAsync(user);
     }
 
     public async Task<UserResponse> LoginAsync(string email, string password)
@@ -59,8 +56,6 @@ public class AuthService : IAuthService
             user.Email,
             user.RoleId,
             user.Role?.Name,
-            user.TeamId,
-            user.Team?.Name,
             user.CreatedAt,
             user.LastLoginAt
         );

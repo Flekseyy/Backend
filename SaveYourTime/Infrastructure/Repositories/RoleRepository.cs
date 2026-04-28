@@ -49,4 +49,10 @@ public class RoleRepository : IRoleRepository
         _context.Roles.Update(role);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<int> GetDefaultRoleId()
+    {
+         return await Task.FromResult(_context.Roles
+            .FirstOrDefaultAsync(x => x.Name == "user").Id);
+    }
 }

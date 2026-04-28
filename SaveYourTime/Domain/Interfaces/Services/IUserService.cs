@@ -6,7 +6,7 @@ namespace WebApplication1.Domain.Interfaces.Services;
 public interface IUserService
 {
     Task<UserResponse?> GetByIdAsync(int id);
-    Task<IEnumerable<UserResponse>> GetAllAsync();
+    Task<IEnumerable<UserResponse>> GetAllUsersAsync();
     Task<IEnumerable<UserResponse>> GetByTeamIdAsync(int teamId);
     Task<IEnumerable<UserResponse>> GetByFilterAsync(string? username, int? roleId);
     

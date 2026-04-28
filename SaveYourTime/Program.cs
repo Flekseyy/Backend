@@ -47,18 +47,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization();
 
 // Repo
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IAssignmentRepository, AssignmentRepository>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<ITeamRepository, TeamRepository>();
-builder.Services.AddScoped<IAssignmentStatusRepository, AssignmentStatusRepository>();
+builder.Services.ConfigureRepositories(builder.Configuration);
 
 // Services
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IAssignmentService, AssignmentService>();
-builder.Services.AddScoped<ITeamService, TeamService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.ConfigureServices(builder.Configuration);
 
 var app = builder.Build();
 

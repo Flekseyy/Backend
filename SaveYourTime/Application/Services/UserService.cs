@@ -30,15 +30,15 @@ public class UserService : IUserService
         return user == null ? null : MapToResponse(user);
     }
 
-    public async Task<IEnumerable<UserResponse>> GetAllAsync()
+    public async Task<IEnumerable<UserResponse>> GetAllUsersAsync()
     {
-        var users = await _userRepository.GetAllAsync();
+        var users =  _userRepository.GetAllAsync().ToArray();
         return users.Select(MapToResponse);
     }
 
     public async Task<IEnumerable<UserResponse>> GetByTeamIdAsync(int teamId)
     {
-        var users = await _userRepository.GetByTeamIdAsync(teamId);
+        var users = await _teamRepository.GetUsersInTeamAsync(teamId);
         return users.Select(MapToResponse);
     }
 
@@ -55,35 +55,37 @@ public class UserService : IUserService
 
         if (await _userRepository.ExistsByEmailAsync(input.Email))
             throw new Exception("Email уже зарегистрирован");
+        
+        return null;
 
-        if (input.RoleId.HasValue)
-        {
-            var role = await _roleRepository.GetByIdAsync(input.RoleId.Value);
-            if (role == null)
-                throw new Exception("Роль не найдена");
-        }
-
-        if (input.TeamId.HasValue)
-        {
-            var team = await _teamRepository.GetByIdAsync(input.TeamId.Value);
-            if (team == null)
-                throw new Exception("Команда не найдена");
-        }
-
-        var user = new User
-        {
-            Username = input.Username,
-            Email = input.Email,
-            PasswordHash = PasswordHasher.Hash(input.Password),
-            RoleId = input.RoleId,
-            TeamId = input.TeamId == 0
-                ? null
-                : input.TeamId,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        var created = await _userRepository.CreateAsync(user);
-        return MapToResponse(created);
+        // if (input.RoleId.HasValue)
+        // {
+        //     var role = await _roleRepository.GetByIdAsync(input.RoleId.Value);
+        //     if (role == null)
+        //         throw new Exception("Роль не найдена");
+        // }
+        //
+        // if (input.TeamId.HasValue)
+        // {
+        //     var team = await _teamRepository.GetByIdAsync(input.TeamId.Value);
+        //     if (team == null)
+        //         throw new Exception("Команда не найдена");
+        // }
+        //
+        // var user = new User
+        // {
+        //     Username = input.Username,
+        //     Email = input.Email,
+        //     PasswordHash = PasswordHasher.Hash(input.Password),
+        //     RoleId = input.RoleId,
+        //     TeamId = input.TeamId == 0
+        //         ? null
+        //         : input.TeamId,
+        //     CreatedAt = DateTime.UtcNow
+        // };
+        //
+        // var created = await _userRepository.CreateAsync(user);
+        // return MapToResponse(created);
     }
 
     public async Task<UserResponse> UpdateAsync(int id, UserInput input)
@@ -94,8 +96,8 @@ public class UserService : IUserService
 
         user.Username = input.Username;
         user.Email = input.Email;
-        user.RoleId = input.RoleId;
-        user.TeamId = input.TeamId;
+        // user.RoleId = input.RoleId;
+        // user.TeamId = input.TeamId;
 
         await _userRepository.UpdateAsync(user);
         return MapToResponse(user);
@@ -126,14 +128,15 @@ public class UserService : IUserService
         if (team == null)
             throw new Exception("Команда не найдена");
 
-        await _userRepository.AddToTeamAsync(userId, teamId);
+        await _teamRepository.AddUserToTeamAsync(userId, teamId);
         var user = await _userRepository.GetByIdAsync(userId);
         return MapToResponse(user!);
     }
 
     public async Task<UserResponse> RemoveFromTeamAsync(int userId)
     {
-        await _userRepository.RemoveFromTeamAsync(userId);
+        //TODO Убрать заглушку
+        await _teamRepository.RemoveUserFromTeamAsync(userId, teamId: 0);
         var user = await _userRepository.GetByIdAsync(userId);
         return MapToResponse(user!);
     }
@@ -146,8 +149,6 @@ public class UserService : IUserService
             user.Email,
             user.RoleId,
             user.Role?.Name,
-            user.TeamId,
-            user.Team?.Name,
             user.CreatedAt,
             user.LastLoginAt
         );

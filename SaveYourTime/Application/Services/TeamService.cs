@@ -37,9 +37,9 @@ public class TeamService : ITeamService
     public async Task<IEnumerable<UserResponse>> GetUsersInTeamAsync(int teamId)
     {
         var users = await _teamRepository.GetUsersInTeamAsync(teamId);
+        //TODO добавить TeamId и TeamName
         return users.Select(u => new UserResponse(
-            u.Id, u.Username, u.Email, u.RoleId, u.Role?.Name,
-            u.TeamId, u.Team?.Name, u.CreatedAt, u.LastLoginAt
+            u.Id, u.Username, u.Email, u.RoleId, u.Role?.Name, u.CreatedAt, u.LastLoginAt
         ));
     }
 
@@ -51,12 +51,9 @@ public class TeamService : ITeamService
 
     public async Task<TeamResponse> CreateAsync(TeamInput input)
     {
-        if (input.LeaderId.HasValue)
-        {
-            var leader = await _userRepository.GetByIdAsync(input.LeaderId.Value);
-            if (leader == null)
-                throw new Exception("Лидер не найден");
-        }
+        var leader = await _userRepository.GetByIdAsync(input.LeaderId);
+        if (leader == null)
+            throw new Exception("Лидер не найден");
 
         var team = new Team
         {
@@ -98,10 +95,11 @@ public class TeamService : ITeamService
 
     public async Task<TeamResponse> RemoveUserFromTeamAsync(int userId)
     {
-        await _teamRepository.RemoveUserFromTeamAsync(userId);
+        await _teamRepository.RemoveUserFromTeamAsync(userId, teamId: 0);
         var user = await _userRepository.GetByIdAsync(userId);
-        var team = user?.TeamId.HasValue == true
-            ? await _teamRepository.GetByIdAsync(user.TeamId.Value)
+        //TODO Поставил заглушку
+        var team = user?.Teams.Any() == true
+            ? await _teamRepository.GetByIdAsync(user.Teams.FirstOrDefault().Id)
             : null;
         return MapToResponse(team!);
     }

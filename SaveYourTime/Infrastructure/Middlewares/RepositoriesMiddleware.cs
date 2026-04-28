@@ -1,16 +1,17 @@
-using WebApplication1.Application.Services;
-using WebApplication1.Domain.Interfaces.Services;
+using WebApplication1.Domain.Interfaces.Repositories;
+using WebApplication1.Infrastructure.Repositories;
 
 namespace WebApplication1.Infrastructure.Middlewares;
 
-public static class ServicesMiddlewares
+public static class RepositoriesMiddlewares
 {
-    public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
+    public static void ConfigureRepositories(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<IAssignmentService, AssignmentService>();
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IRoleService, RoleService>();
-        services.AddScoped<ITeamService, TeamService>();
-        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAssignmentRepository, AssignmentRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<ITeamRepository, TeamRepository>();
+        services.AddScoped<IAssignmentStatusRepository, AssignmentStatusRepository>();
+        services.AddScoped<IAssignmentPriorityRepository, AssignmentPriorityRepository>();
     }
 }

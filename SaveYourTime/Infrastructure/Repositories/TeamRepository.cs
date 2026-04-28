@@ -67,20 +67,56 @@ public class TeamRepository : ITeamRepository
 
     public async Task AddUserToTeamAsync(int userId, int teamId)
     {
-        var user = await _context.Users.FindAsync(userId);
-        if (user != null)
+        var user = await _context.Users
+            .Include(u => u.Teams)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
         {
-            user.TeamId = teamId;
+            throw new Exception("User not found");
+        }
+
+        var team = await _context.Teams
+            .FirstOrDefaultAsync(t => t.Id == teamId);
+
+        if (team == null)
+        {
+            throw new Exception("Team not found");
+        }
+
+        bool alreadyInTeam = user.Teams.Any(t => t.Id == teamId);
+
+        if (!alreadyInTeam)
+        {
+            user.Teams.Add(team);
             await _context.SaveChangesAsync();
         }
     }
 
-    public async Task RemoveUserFromTeamAsync(int userId)
+    public async Task RemoveUserFromTeamAsync(int userId, int teamId)
     {
-        var user = await _context.Users.FindAsync(userId);
-        if (user != null)
+        var user = await _context.Users
+            .Include(u => u.Teams)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
         {
-            user.TeamId = null;
+            throw new Exception("User not found");
+        }
+
+        var team = await _context.Teams
+            .FirstOrDefaultAsync(t => t.Id == teamId);
+
+        if (team == null)
+        {
+            throw new Exception("Team not found");
+        }
+
+        bool alreadyInTeam = user.Teams.Any(t => t.Id == teamId);
+
+        if (alreadyInTeam)
+        {
+            user.Teams.Remove(team);
             await _context.SaveChangesAsync();
         }
     }

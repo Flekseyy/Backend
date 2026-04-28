@@ -6,8 +6,6 @@ public record UserResponse(
     string Email,
     int? RoleId,
     string? RoleName,
-    int? TeamId,
-    string? TeamName,
     DateTime CreatedAt,
     DateTime? LastLoginAt
 );

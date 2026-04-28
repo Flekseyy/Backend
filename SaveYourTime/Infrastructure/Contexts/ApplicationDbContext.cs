@@ -19,28 +19,48 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Role>().HasData(
-            new Role { Id = 1, Name = "Admin", Description = "Administrator" },
-            new Role { Id = 2, Name = "User", Description = "Regular user" }
-        );
+        modelBuilder.Entity<Role>(r =>
+        {
+            r.HasData(
+                new Role { Id = 1, Name = "admin", Description = "Administrator" },
+                new Role { Id = 2, Name = "User", Description = "Regular user" }
+            );
+        });
+        
+        // modelBuilder.Entity<AssignmentStatus>().HasData(
+        //     new AssignmentStatus { Id = 1, Name = "todo" },
+        //     new AssignmentStatus { Id = 2, Name = "in-progress" },
+        //     new AssignmentStatus { Id = 3, Name = "done" }
+        // );
+        //
+        // modelBuilder.Entity<AssignmentPriority>().HasData(
+        //     new AssignmentPriority { Id = 1, Name = "low" },
+        //     new AssignmentPriority { Id = 2, Name = "medium" },
+        //     new AssignmentPriority { Id = 3, Name = "high" }
+        // );
 
-        modelBuilder.Entity<AssignmentStatus>().HasData(
-            new AssignmentStatus { Id = 1, Name = "todo" },
-            new AssignmentStatus { Id = 2, Name = "in-progress" },
-            new AssignmentStatus { Id = 3, Name = "done" }
-        );
-
-        modelBuilder.Entity<AssignmentPriority>().HasData(
-            new AssignmentPriority { Id = 1, Name = "low" },
-            new AssignmentPriority { Id = 2, Name = "medium" },
-            new AssignmentPriority { Id = 3, Name = "high" }
-        );
 
         modelBuilder.Entity<User>()
-            .HasIndex(u => u.Username).IsUnique();
+            .HasMany(t => t.Teams)
+            .WithMany(t => t.Members);
+        
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Role)
+            .WithMany(r => r.Users)
+            .HasForeignKey(u => u.RoleId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Team>()
+            .HasOne(t => t.Leader)
+            .WithMany()
+            .HasForeignKey(t => t.LeaderId)
+            .OnDelete(DeleteBehavior.SetNull);
+        
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Email).IsUnique();
-
+        
+        
+        
         modelBuilder.Entity<Assignment>()
             .HasOne(a => a.User)
             .WithMany(u => u.Assignments)
@@ -58,23 +78,5 @@ public class ApplicationDbContext : DbContext
             .WithMany(p => p.Assignments)
             .HasForeignKey(a => a.PriorityId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<User>()
-            .HasOne(u => u.Role)
-            .WithMany(r => r.Users)
-            .HasForeignKey(u => u.RoleId)
-            .OnDelete(DeleteBehavior.SetNull);
-
-        modelBuilder.Entity<User>()
-            .HasOne(u => u.Team)
-            .WithMany(t => t.Members)
-            .HasForeignKey(u => u.TeamId)
-            .OnDelete(DeleteBehavior.SetNull);
-
-        modelBuilder.Entity<Team>()
-            .HasOne(t => t.Leader)
-            .WithMany()
-            .HasForeignKey(t => t.LeaderId)
-            .OnDelete(DeleteBehavior.SetNull);
     }
 }
