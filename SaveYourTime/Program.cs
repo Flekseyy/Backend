@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using WebApplication1.Application.Services;
 using WebApplication1.Domain.Interfaces.Repositories;
+using WebApplication1.Domain.Interfaces.Services;
 using WebApplication1.Infrastructure.Contexts;
 using WebApplication1.Infrastructure.Middlewares;
 using WebApplication1.Infrastructure.Repositories;
@@ -31,6 +33,13 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAssignmentRepository, AssignmentRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+
+// Services
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAssignmentService, AssignmentService>();
+builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 var app = builder.Build();
 
