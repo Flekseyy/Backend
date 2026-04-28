@@ -1,4 +1,4 @@
-﻿namespace WebApplication1.Domain.Object;
+﻿namespace WebApplication1.Domain.Models;
 
 public class User
 {
@@ -7,4 +7,6 @@ public class User
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    public ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
 }
