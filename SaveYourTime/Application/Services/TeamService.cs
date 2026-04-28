@@ -51,16 +51,21 @@ public class TeamService : ITeamService
 
     public async Task<TeamResponse> CreateAsync(TeamInput input)
     {
-        var leader = await _userRepository.GetByIdAsync(input.LeaderId);
-        if (leader == null)
-            throw new Exception("Лидер не найден");
+        var leaderId = 1;
+        // var leader = await _userRepository.GetByIdAsync(input.LeaderId);
+        // if (leader == null)
+        //     throw new Exception("Лидер не найден");
+        
+        var user = await _userRepository.GetByIdAsync(leaderId);
 
         var team = new Team
         {
             Name = input.Name,
             Description = input.Description,
-            LeaderId = input.LeaderId,
-            CreatedAt = DateTime.UtcNow
+            LeaderId = leaderId,
+            CreatedAt = DateTime.UtcNow,
+            
+            Members = [user]
         };
 
         var created = await _teamRepository.CreateAsync(team);
@@ -75,7 +80,7 @@ public class TeamService : ITeamService
 
         team.Name = input.Name;
         team.Description = input.Description;
-        team.LeaderId = input.LeaderId;
+        // team.LeaderId = input.LeaderId;
 
         await _teamRepository.UpdateAsync(team);
         return MapToResponse(team);

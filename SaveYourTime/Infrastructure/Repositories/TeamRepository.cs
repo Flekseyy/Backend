@@ -19,7 +19,7 @@ public class TeamRepository : ITeamRepository
             .ToListAsync();
 
     public async Task<Team?> GetByIdAsync(int id) =>
-        await _context.Teams
+         await _context.Teams
             .Include(t => t.Leader)
             .Include(t => t.Members)
             .Include(t => t.Assignments)

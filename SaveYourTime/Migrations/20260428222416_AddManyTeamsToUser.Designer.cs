@@ -12,7 +12,7 @@ using WebApplication1.Infrastructure.Contexts;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260428211855_AddManyTeamsToUser")]
+    [Migration("20260428222416_AddManyTeamsToUser")]
     partial class AddManyTeamsToUser
     {
         /// <inheritdoc />
@@ -272,7 +272,7 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Domain.Models.Team", b =>
                 {
                     b.HasOne("WebApplication1.Domain.Models.User", "Leader")
-                        .WithMany()
+                        .WithMany("LeadingTeams")
                         .HasForeignKey("LeaderId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
@@ -313,6 +313,8 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Domain.Models.User", b =>
                 {
                     b.Navigation("Assignments");
+
+                    b.Navigation("LeadingTeams");
                 });
 #pragma warning restore 612, 618
         }

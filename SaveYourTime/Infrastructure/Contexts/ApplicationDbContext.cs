@@ -52,13 +52,12 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Team>()
             .HasOne(t => t.Leader)
-            .WithMany()
+            .WithMany(u => u.LeadingTeams)
             .HasForeignKey(t => t.LeaderId)
             .OnDelete(DeleteBehavior.SetNull);
         
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Email).IsUnique();
-        
         
         
         modelBuilder.Entity<Assignment>()

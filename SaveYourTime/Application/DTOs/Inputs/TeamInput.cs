@@ -2,6 +2,5 @@
 
 public record TeamInput(
     string Name,
-    int LeaderId,
     string? Description = null
 );

@@ -12,6 +12,8 @@ public class User
 
     public Role? Role { get; set; }
     
+    
+    public ICollection<Team> LeadingTeams { get; set; } = new List<Team>();
     public ICollection<Team> Teams { get; set; } = new List<Team>();
     public ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
 }
