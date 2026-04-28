@@ -1,22 +1,60 @@
-﻿using WebApplication1.Domain.Interfaces.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using WebApplication1.Domain.Interfaces.Repositories;
 using WebApplication1.Domain.Models;
 using WebApplication1.Infrastructure.Contexts;
 
 namespace WebApplication1.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 public class UserRepository : IUserRepository
 {
     private readonly ApplicationDbContext _context;
 
     public UserRepository(ApplicationDbContext context) => _context = context;
+    
+    public async Task<User?> GetByIdAsync(int id)
+    {
+        return await _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Team)
+            .FirstOrDefaultAsync(u => u.Id == id);
+    }
 
-    public async Task<User?> GetByUsernameAsync(string username) =>
-        await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+    public async Task<IEnumerable<User>> GetAllAsync()
+    {
+        return await _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Team)
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<User>> GetByTeamIdAsync(int teamId)
+    {
+        return await _context.Users
+            .Include(u => u.Role)
+            .Where(u => u.TeamId == teamId)
+            .ToListAsync();
+    }
 
-    public async Task<User?> GetByEmailAsync(string email) =>
-        await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+    public async Task<IEnumerable<User>> GetByFilterAsync(string? username, int? roleId)
+    {
+        var query = _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Team)
+            .AsQueryable();
+        
+        if (!string.IsNullOrEmpty(username))
+        {
+            query = query.Where(u => u.Username.Contains(username));
+        }
+        
+        if (roleId.HasValue)
+        {
+            query = query.Where(u => u.RoleId == roleId.Value);
+        }
 
+        return await query.ToListAsync();
+    }
+    
     public async Task<User> CreateAsync(User user)
     {
         _context.Users.Add(user);
@@ -24,9 +62,71 @@ public class UserRepository : IUserRepository
         return user;
     }
 
+    public async Task UpdateAsync(User user)
+    {
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+    }
+    
+    public async Task DeleteAsync(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user != null)
+        {
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+        }
+    }
+    
+    public async Task ChangeRoleAsync(int userId, int? roleId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user != null)
+        {
+            user.RoleId = roleId;
+            await _context.SaveChangesAsync();
+        }
+    }
+    
+    public async Task AddToTeamAsync(int userId, int teamId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user != null)
+        {
+            user.TeamId = teamId;
+            await _context.SaveChangesAsync();
+        }
+    }
+    
+    public async Task RemoveFromTeamAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user != null)
+        {
+            user.TeamId = null;
+            await _context.SaveChangesAsync();
+        }
+    }
+    
+    public async Task<User?> GetByUsernameAsync(string username) =>
+        await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+
+    public async Task<User?> GetByEmailAsync(string email) =>
+        await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
     public async Task<bool> ExistsByUsernameAsync(string username) =>
         await _context.Users.AnyAsync(u => u.Username == username);
 
     public async Task<bool> ExistsByEmailAsync(string email) =>
         await _context.Users.AnyAsync(u => u.Email == email);
+
+    public async Task UpdateLastLoginAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user != null)
+        {
+            user.LastLoginAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+    }
 }
