@@ -26,8 +26,9 @@ public class ApplicationDbContext : DbContext
         );
 
         modelBuilder.Entity<Role>().HasData(
-            new Role { Id = 1, Name = "Admin", Description = "Administrator" },
-            new Role { Id = 2, Name = "User", Description = "Regular user" }
+            new Role { Id = 0, Name = "Admin", Description = "Administrator" },
+            new Role { Id = 1, Name = "User", Description = "Regular user" },
+            new Role { Id = 2, Name = "TeamLead", Description = "Team Leader" }
         );
         
         modelBuilder.Entity<User>()

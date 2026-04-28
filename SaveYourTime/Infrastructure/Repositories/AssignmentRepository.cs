@@ -13,8 +13,7 @@ public class AssignmentRepository : IAssignmentRepository
     {
         _context = context;
     }
-
-    // RAZRABOTKA-18: Методы получения
+    
     public async Task<IEnumerable<Assignment>> GetAllAsync()
     {
         return await _context.Assignments
@@ -43,7 +42,7 @@ public class AssignmentRepository : IAssignmentRepository
 
         if (!string.IsNullOrEmpty(title))
         {
-            query = query.Where(a => a.AssignmentInfo.Name.Contains(title));
+            query = query.Where(a => a.AssignmentInfo.Name!.Contains(title));
         }
 
         if (statusId.HasValue)
@@ -58,8 +57,7 @@ public class AssignmentRepository : IAssignmentRepository
 
         return await query.ToListAsync();
     }
-
-    // RAZRABOTKA-19: Методы изменения
+    
     public async Task<Assignment> CreateAsync(Assignment assignment)
     {
         _context.Assignments.Add(assignment);
