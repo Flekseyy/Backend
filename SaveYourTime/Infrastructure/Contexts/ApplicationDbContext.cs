@@ -7,11 +7,13 @@ public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }
-
+    
     public DbSet<User> Users => Set<User>();
     public DbSet<Assignment> Assignments => Set<Assignment>();
     public DbSet<AssignmentStatus> AssignmentStatuses => Set<AssignmentStatus>();
     public DbSet<AssignmentInfo> AssignmentInfos => Set<AssignmentInfo>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<Team> Teams => Set<Team>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,7 +24,13 @@ public class ApplicationDbContext : DbContext
             new AssignmentStatus { Id = 2, Name = "In Progress" },
             new AssignmentStatus { Id = 3, Name = "Done" }
         );
-
+        
+        modelBuilder.Entity<Role>().HasData(
+            new Role { Id = 1, Name = "Admin", Description = "Administrator" },
+            new Role { Id = 2, Name = "User", Description = "Regular user" }
+        );
+        
+        
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Username).IsUnique();
         modelBuilder.Entity<User>()
@@ -33,17 +41,35 @@ public class ApplicationDbContext : DbContext
             .WithMany(u => u.Assignments)
             .HasForeignKey(a => a.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-
+        
         modelBuilder.Entity<Assignment>()
             .HasOne(a => a.AssignmentStatus)
             .WithMany(s => s.Assignments)
             .HasForeignKey(a => a.AssignmentStatusId)
             .OnDelete(DeleteBehavior.Restrict);
-
+        
         modelBuilder.Entity<Assignment>()
             .HasOne(a => a.AssignmentInfo)
             .WithMany(i => i.Assignments)
             .HasForeignKey(a => a.AssignmentInfoId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Role)
+            .WithMany(r => r.Users)
+            .HasForeignKey(u => u.RoleId)
+            .OnDelete(DeleteBehavior.SetNull);
+        
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Team)
+            .WithMany(t => t.Members)
+            .HasForeignKey(u => u.TeamId)
+            .OnDelete(DeleteBehavior.SetNull); 
+        
+        modelBuilder.Entity<Team>()
+            .HasMany(t => t.Assignments)
+            .WithOne(a => a.Team)
+            .HasForeignKey(a => a.TeamId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
