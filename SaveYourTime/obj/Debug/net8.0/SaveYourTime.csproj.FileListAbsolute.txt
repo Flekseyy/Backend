@@ -1,6 +1,0 @@
-/Users/valentin/Desktop/Backend/SaveYourTime/obj/Debug/net8.0/SaveYourTime.GeneratedMSBuildEditorConfig.editorconfig
-/Users/valentin/Desktop/Backend/SaveYourTime/obj/Debug/net8.0/SaveYourTime.AssemblyInfoInputs.cache
-/Users/valentin/Desktop/Backend/SaveYourTime/obj/Debug/net8.0/SaveYourTime.AssemblyInfo.cs
-/Users/valentin/Desktop/Backend/SaveYourTime/obj/Debug/net8.0/SaveYourTime.csproj.CoreCompileInputs.cache
-/Users/valentin/Desktop/Backend/SaveYourTime/obj/Debug/net8.0/SaveYourTime.MvcApplicationPartsAssemblyInfo.cache
-/Users/valentin/Desktop/Backend/SaveYourTime/obj/Debug/net8.0/SaveYourTime.sourcelink.json
