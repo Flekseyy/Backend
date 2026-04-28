@@ -7,28 +7,26 @@ public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }
-    
     public DbSet<User> Users => Set<User>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<Team> Teams => Set<Team>();
     public DbSet<Assignment> Assignments => Set<Assignment>();
     public DbSet<AssignmentStatus> AssignmentStatuses => Set<AssignmentStatus>();
     public DbSet<AssignmentInfo> AssignmentInfos => Set<AssignmentInfo>();
-    public DbSet<Role> Roles => Set<Role>();
-    public DbSet<Team> Teams => Set<Team>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         
+        modelBuilder.Entity<Role>().HasData(
+            new Role { Id = 1, Name = "Admin", Description = "Administrator" },
+            new Role { Id = 2, Name = "User", Description = "Regular user" }
+        );
+
         modelBuilder.Entity<AssignmentStatus>().HasData(
             new AssignmentStatus { Id = 1, Name = "To Do" },
             new AssignmentStatus { Id = 2, Name = "In Progress" },
             new AssignmentStatus { Id = 3, Name = "Done" }
-        );
-
-        modelBuilder.Entity<Role>().HasData(
-            new Role { Id = 0, Name = "Admin", Description = "Administrator" },
-            new Role { Id = 1, Name = "User", Description = "Regular user" },
-            new Role { Id = 2, Name = "TeamLead", Description = "Team Leader" }
         );
         
         modelBuilder.Entity<User>()
@@ -76,6 +74,6 @@ public class ApplicationDbContext : DbContext
             .HasOne(t => t.Leader)
             .WithMany()
             .HasForeignKey(t => t.LeaderId)
-            .OnDelete(DeleteBehavior.SetNull); 
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
