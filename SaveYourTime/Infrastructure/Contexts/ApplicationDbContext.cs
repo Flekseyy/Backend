@@ -24,12 +24,11 @@ public class ApplicationDbContext : DbContext
             new AssignmentStatus { Id = 2, Name = "In Progress" },
             new AssignmentStatus { Id = 3, Name = "Done" }
         );
-        
+
         modelBuilder.Entity<Role>().HasData(
             new Role { Id = 1, Name = "Admin", Description = "Administrator" },
             new Role { Id = 2, Name = "User", Description = "Regular user" }
         );
-        
         
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Username).IsUnique();
@@ -64,12 +63,18 @@ public class ApplicationDbContext : DbContext
             .HasOne(u => u.Team)
             .WithMany(t => t.Members)
             .HasForeignKey(u => u.TeamId)
-            .OnDelete(DeleteBehavior.SetNull); 
+            .OnDelete(DeleteBehavior.SetNull);
         
         modelBuilder.Entity<Team>()
             .HasMany(t => t.Assignments)
             .WithOne(a => a.Team)
             .HasForeignKey(a => a.TeamId)
             .OnDelete(DeleteBehavior.SetNull);
+        
+        modelBuilder.Entity<Team>()
+            .HasOne(t => t.Leader)
+            .WithMany()
+            .HasForeignKey(t => t.LeaderId)
+            .OnDelete(DeleteBehavior.SetNull); 
     }
 }
