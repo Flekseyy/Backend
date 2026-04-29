@@ -38,6 +38,7 @@ public class TeamService : ITeamService
     {
         var users = await _teamRepository.GetUsersInTeamAsync(teamId);
         return users.Select(u => new UserResponse(
+            u.Id,
             u.Username
         ));
     }
@@ -48,41 +49,33 @@ public class TeamService : ITeamService
         return assignments.Select(MapAssignmentToResponse);
     }
 
-    public async Task<TeamResponse> CreateAsync(TeamInput input)
+    public async Task CreateAsync(TeamInput input)
     {
-        var leaderId = 1;
-        // var leader = await _userRepository.GetByIdAsync(input.LeaderId);
-        // if (leader == null)
-        //     throw new Exception("Лидер не найден");
-        
-        var user = await _userRepository.GetByIdAsync(leaderId);
+        var user = await _userRepository.GetByIdAsync(input.LeaderId);
 
         var team = new Team
         {
             Name = input.Name,
             Description = input.Description,
-            LeaderId = leaderId,
+            LeaderId = user!.Id,
             CreatedAt = DateTime.UtcNow,
             
             Members = [user]
         };
 
-        var created = await _teamRepository.CreateAsync(team);
-        return MapToResponse(created);
+        await _teamRepository.CreateAsync(team);
     }
 
-    public async Task<TeamResponse> UpdateAsync(int id, TeamInput input)
+    public async Task UpdateAsync(TeamInput input)
     {
-        var team = await _teamRepository.GetByIdAsync(id);
+        var team = await _teamRepository.GetByIdAsync(input.teamId);
         if (team == null)
             throw new Exception("Команда не найдена");
 
         team.Name = input.Name;
         team.Description = input.Description;
-        // team.LeaderId = input.LeaderId;
 
         await _teamRepository.UpdateAsync(team);
-        return MapToResponse(team);
     }
 
     public async Task DeleteAsync(int id)
@@ -90,44 +83,23 @@ public class TeamService : ITeamService
         await _teamRepository.DeleteAsync(id);
     }
 
-    public async Task<TeamResponse> AddUserToTeamAsync(int userId, int teamId)
+    public async Task AddUserToTeamAsync(string email, int teamId)
     {
-        await _teamRepository.AddUserToTeamAsync(userId, teamId);
-        var team = await _teamRepository.GetByIdAsync(teamId);
-        return MapToResponse(team!);
+        await _teamRepository.AddUserToTeamAsync(email, teamId);
     }
 
-    public async Task<TeamResponse> RemoveUserFromTeamAsync(int userId)
+    public async Task RemoveUserFromTeamAsync(int teamId, int userId)
     {
-        await _teamRepository.RemoveUserFromTeamAsync(userId, teamId: 0);
-        var user = await _userRepository.GetByIdAsync(userId);
-        //TODO Поставил заглушку
-        var team = user?.Teams.Any() == true
-            ? await _teamRepository.GetByIdAsync(user.Teams.FirstOrDefault().Id)
-            : null;
-        return MapToResponse(team!);
+        await _teamRepository.RemoveUserFromTeamAsync(teamId, userId);
     }
 
-    public async Task<TeamResponse> SetTeamLeaderAsync(int teamId, int userId)
+    public async Task SetTeamLeaderAsync(int teamId, int userId)
     {
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)
             throw new Exception("Пользователь не найден");
 
         await _teamRepository.SetTeamLeaderAsync(teamId, userId);
-        var team = await _teamRepository.GetByIdAsync(teamId);
-        return MapToResponse(team!);
-    }
-
-    public async Task<TeamResponse> ChangeTeamLeaderAsync(int teamId, int newLeaderId)
-    {
-        var user = await _userRepository.GetByIdAsync(newLeaderId);
-        if (user == null)
-            throw new Exception("Пользователь не найден");
-
-        await _teamRepository.ChangeTeamLeaderAsync(teamId, newLeaderId);
-        var team = await _teamRepository.GetByIdAsync(teamId);
-        return MapToResponse(team!);
     }
 
     private TeamResponse MapToResponse(Team team)
@@ -152,8 +124,6 @@ public class TeamService : ITeamService
             a.User.Username,
             a.Status.Name,
             a.Priority.Name,
-            a.TeamId,
-            a.Team?.Name,
             a.Deadline,
             a.CreatedAt
         );

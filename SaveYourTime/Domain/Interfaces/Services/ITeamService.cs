@@ -8,13 +8,11 @@ public interface ITeamService
     Task<IEnumerable<TeamResponse>> GetAllAsync();
     Task<TeamResponse?> GetByIdAsync(int id);
     Task<IEnumerable<UserResponse>> GetUsersInTeamAsync(int teamId);
-    Task<IEnumerable<AssignmentResponse>> GetAssignmentsInTeamAsync(int teamId);
 
-    Task<TeamResponse> CreateAsync(TeamInput input);
-    Task<TeamResponse> UpdateAsync(int id, TeamInput input);
+    Task CreateAsync(TeamInput input);
+    Task UpdateAsync(TeamInput input);
     Task DeleteAsync(int id);
-    Task<TeamResponse> AddUserToTeamAsync(int userId, int teamId);
-    Task<TeamResponse> RemoveUserFromTeamAsync(int userId);
-    Task<TeamResponse> SetTeamLeaderAsync(int teamId, int userId);
-    Task<TeamResponse> ChangeTeamLeaderAsync(int teamId, int newLeaderId);
+    Task AddUserToTeamAsync(string email, int teamId);
+    Task RemoveUserFromTeamAsync(int teamId, int userId);
+    Task SetTeamLeaderAsync(int teamId, int userId);
 }

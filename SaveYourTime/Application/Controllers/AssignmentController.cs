@@ -80,8 +80,9 @@ public class AssignmentController : ControllerBase
     [HttpPatch("status")]
     public async Task<ActionResult<AssignmentResponse>> UpdateStatus
         (
-            [FromBody] int assigmentId,
-            [FromBody] string status)
+             int assigmentId,
+             string status
+        )
     {
         try
         {
@@ -97,8 +98,8 @@ public class AssignmentController : ControllerBase
     [HttpPatch("owner")]
     public async Task<ActionResult<AssignmentResponse>> ChangeOwner
     (
-        [FromBody] int assigmentId,
-        [FromBody] int newUserId)
+        int assigmentId, 
+        int newUserId)
     {
         try
         {

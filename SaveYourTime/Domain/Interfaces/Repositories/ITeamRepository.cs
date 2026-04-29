@@ -11,8 +11,7 @@ public interface ITeamRepository
     Task<Team> CreateAsync(Team team);
     Task DeleteAsync(int id);
     Task UpdateAsync(Team team);
-    Task AddUserToTeamAsync(int userId, int teamId);
-    Task RemoveUserFromTeamAsync(int userId, int teamId);
+    Task AddUserToTeamAsync(string email, int teamId);
+    Task RemoveUserFromTeamAsync(int teamId, int userId);
     Task SetTeamLeaderAsync(int teamId, int userId);
-    Task ChangeTeamLeaderAsync(int teamId, int newLeaderId);
 }

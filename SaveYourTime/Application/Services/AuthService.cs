@@ -79,6 +79,7 @@ public class AuthService : IAuthService
 
     private UserResponse MapToResponse(User user) =>
         new UserResponse(
-            user.Id
+            user.Id,
+            user.Username
         );
 }

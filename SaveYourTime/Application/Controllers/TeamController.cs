@@ -43,19 +43,20 @@ public class TeamController : ControllerBase
     }
 
     [HttpGet("{id}/assignments")]
-    public async Task<ActionResult<IEnumerable<AssignmentResponse>>> GetAssignments(int id)
+    public async Task<ActionResult<IEnumerable<AssignmentResponse>>> GetTeamAssigmentsAssignments(int id)
     {
-        var assignments = await _teamService.GetAssignmentsInTeamAsync(id);
-        return Ok(assignments);
+        //TODO тот самый TeamAssigment
+        // var assignments = await _teamService.GetAssignmentsInTeamAsync(id);
+        return Ok();
     }
     
     [HttpPost]
-    public async Task<ActionResult<TeamResponse>> Create([FromBody] TeamInput input)
+    public async Task<ActionResult> Create([FromBody] TeamInput input)
     {
         try
         {
-            var team = await _teamService.CreateAsync(input);
-            return CreatedAtAction(nameof(GetById), new { id = team.Id }, team);
+            await _teamService.CreateAsync(input);
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -63,13 +64,13 @@ public class TeamController : ControllerBase
         }
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult<TeamResponse>> Update(int id, [FromBody] TeamInput input)
+    [HttpPut]
+    public async Task<ActionResult> Update([FromBody] TeamInput input)
     {
         try
         {
-            var team = await _teamService.UpdateAsync(id, input);
-            return Ok(team);
+            await _teamService.UpdateAsync(input);
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -85,12 +86,12 @@ public class TeamController : ControllerBase
     }
 
     [HttpPost("{id}/users/{userId}")]
-    public async Task<ActionResult<TeamResponse>> AddUser(int id, int userId)
+    public async Task<ActionResult> AddUser(int teamId, string email)
     {
         try
         {
-            var team = await _teamService.AddUserToTeamAsync(userId, id);
-            return Ok(team);
+            await _teamService.AddUserToTeamAsync(email, teamId);
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -99,12 +100,12 @@ public class TeamController : ControllerBase
     }
 
     [HttpDelete("{id}/users/{userId}")]
-    public async Task<ActionResult<TeamResponse>> RemoveUser(int id, int userId)
+    public async Task<ActionResult> RemoveUserFromTeam(int teamId, int userId)
     {
         try
         {
-            var team = await _teamService.RemoveUserFromTeamAsync(userId);
-            return Ok(team);
+            await _teamService.RemoveUserFromTeamAsync(teamId, userId);
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -113,26 +114,12 @@ public class TeamController : ControllerBase
     }
 
     [HttpPatch("{id}/leader/{userId}")]
-    public async Task<ActionResult<TeamResponse>> SetLeader(int id, int userId)
+    public async Task<ActionResult> SetLeader(int teamId, int userId)
     {
         try
         {
-            var team = await _teamService.SetTeamLeaderAsync(id, userId);
-            return Ok(team);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-
-    [HttpPatch("{id}/leader")]
-    public async Task<ActionResult<TeamResponse>> ChangeLeader(int id, [FromBody] int newLeaderId)
-    {
-        try
-        {
-            var team = await _teamService.ChangeTeamLeaderAsync(id, newLeaderId);
-            return Ok(team);
+            await _teamService.SetTeamLeaderAsync(teamId, userId);
+            return Ok();
         }
         catch (Exception ex)
         {

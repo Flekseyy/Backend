@@ -64,11 +64,10 @@ public class TeamRepository : ITeamRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task AddUserToTeamAsync(int userId, int teamId)
+    public async Task AddUserToTeamAsync(string email, int teamId)
     {
         var user = await _context.Users
-            .Include(u => u.Teams)
-            .FirstOrDefaultAsync(u => u.Id == userId);
+            .FirstOrDefaultAsync(u => u.Email == email);
 
         if (user == null)
         {
@@ -76,6 +75,7 @@ public class TeamRepository : ITeamRepository
         }
 
         var team = await _context.Teams
+            .Include(t => t.Members)
             .FirstOrDefaultAsync(t => t.Id == teamId);
 
         if (team == null)
@@ -83,7 +83,7 @@ public class TeamRepository : ITeamRepository
             throw new Exception("Team not found");
         }
 
-        bool alreadyInTeam = user.Teams.Any(t => t.Id == teamId);
+        bool alreadyInTeam = team.Members.Any(t => t.Id == user.Id);
 
         if (!alreadyInTeam)
         {
@@ -92,10 +92,9 @@ public class TeamRepository : ITeamRepository
         }
     }
 
-    public async Task RemoveUserFromTeamAsync(int userId, int teamId)
+    public async Task RemoveUserFromTeamAsync(int teamId,int userId)
     {
         var user = await _context.Users
-            .Include(u => u.Teams)
             .FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)
@@ -104,6 +103,7 @@ public class TeamRepository : ITeamRepository
         }
 
         var team = await _context.Teams
+            .Include(t => t.Members)
             .FirstOrDefaultAsync(t => t.Id == teamId);
 
         if (team == null)
@@ -111,7 +111,7 @@ public class TeamRepository : ITeamRepository
             throw new Exception("Team not found");
         }
 
-        bool alreadyInTeam = user.Teams.Any(t => t.Id == teamId);
+        bool alreadyInTeam = user.Teams.Any(t => t.Id == userId);
 
         if (alreadyInTeam)
         {
@@ -120,22 +120,12 @@ public class TeamRepository : ITeamRepository
         }
     }
 
-    public async Task SetTeamLeaderAsync(int teamId, int userId)
+    public async Task SetTeamLeaderAsync(int teamId,int userId)
     {
         var team = await _context.Teams.FindAsync(teamId);
         if (team != null)
         {
             team.LeaderId = userId;
-            await _context.SaveChangesAsync();
-        }
-    }
-
-    public async Task ChangeTeamLeaderAsync(int teamId, int newLeaderId)
-    {
-        var team = await _context.Teams.FindAsync(teamId);
-        if (team != null)
-        {
-            team.LeaderId = newLeaderId;
             await _context.SaveChangesAsync();
         }
     }

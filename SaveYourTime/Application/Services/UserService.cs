@@ -92,7 +92,8 @@ public class UserService : IUserService
     private UserResponse MapToResponse(User user)
     {
         return new UserResponse(
-            user.Id
+            user.Id,
+            user.Username
         );
     }
 }
