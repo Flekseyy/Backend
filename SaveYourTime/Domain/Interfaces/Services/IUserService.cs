@@ -7,13 +7,10 @@ public interface IUserService
 {
     Task<UserResponse?> GetByIdAsync(int id);
     Task<IEnumerable<UserResponse>> GetAllUsersAsync();
-    Task<IEnumerable<UserResponse>> GetByTeamIdAsync(int teamId);
     Task<IEnumerable<UserResponse>> GetByFilterAsync(string? username, int? roleId);
     
-    Task<UserResponse> CreateAsync(UserInput input);
-    Task<UserResponse> UpdateAsync(int id, UserInput input);
+    Task CreateAsync(UserInput input);
+    Task UpdateAsync(UserInput input);
     Task DeleteAsync(int id);
-    Task<UserResponse> ChangeRoleAsync(int userId, int? roleId);
-    Task<UserResponse> AddToTeamAsync(int userId, int teamId);
-    Task<UserResponse> RemoveFromTeamAsync(int userId);
+    Task ChangeUserRoleAsync(int userId, int roleId);
 }

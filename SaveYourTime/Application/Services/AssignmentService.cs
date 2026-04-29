@@ -1,4 +1,5 @@
 ﻿using WebApplication1.Application.DTOs.Inputs;
+using WebApplication1.Application.DTOs.Inputs.Assigments;
 using WebApplication1.Application.DTOs.Responses;
 using WebApplication1.Domain.Interfaces.Repositories;
 using WebApplication1.Domain.Interfaces.Services;
@@ -11,7 +12,7 @@ public class AssignmentService : IAssignmentService
     private readonly IAssignmentRepository _assignmentRepository;
     private readonly IUserRepository _userRepository;
     private readonly IAssignmentPriorityRepository _priorityRepository;
-
+    
     public AssignmentService(
         IAssignmentRepository assignmentRepository,
         IUserRepository userRepository,
@@ -34,17 +35,16 @@ public class AssignmentService : IAssignmentService
         return assignment == null ? null : MapToResponse(assignment);
     }
 
-    public async Task<IEnumerable<AssignmentResponse>> GetByFilterAsync(string? title, int? statusId, int? userId)
+    public async Task<IEnumerable<AssignmentResponse>> GetByFilterAsync(FilterAssigmentInput input)
     {
-        var assignments = await _assignmentRepository.GetByFilterAsync(title, statusId, userId);
+        var assignments = _assignmentRepository
+            .GetByFilterAsync(input.UserId, input.Filter)
+            .AsEnumerable();
         return assignments.Select(MapToResponse);
     }
 
-    public async Task<AssignmentResponse> CreateAsync(AssignmentInput input, int userId)
+    public async Task CreateAsync(AssignmentInput input)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user == null)
-            throw new Exception("Пользователь не найден");
 
         int priorityId = input.Priority switch
         {
@@ -58,37 +58,28 @@ public class AssignmentService : IAssignmentService
         {
             Title = input.Title,
             Description = input.Description,
-            UserId = userId,
-            StatusId = 1,
+            UserId = input.UserId,
+            StatusId = 1, // статус новая по умолчанию
             PriorityId = priorityId,
-            TeamId = input.TeamId,
             Deadline = input.Deadline,
             CreatedAt = DateTime.UtcNow
         };
 
-        var created = await _assignmentRepository.CreateAsync(assignment);
-        return MapToResponse(created);
+        await _assignmentRepository.CreateAsync(assignment);
     }
 
-    public async Task<AssignmentResponse> UpdateAsync(int id, AssignmentInput input)
+    public async Task UpdateAsync(ChangeAssigmentInput input)
     {
-        var assignment = await _assignmentRepository.GetByIdAsync(id);
+        var assignment = await _assignmentRepository.GetByIdAsync(input.AssigmentId);
         if (assignment == null)
             throw new Exception("Задача не найдена");
 
         assignment.Title = input.Title;
         assignment.Description = input.Description;
-        assignment.PriorityId = input.Priority switch
-        {
-            "low" => 1,
-            "medium" => 2,
-            "high" => 3,
-            _ => 2
-        };
+        assignment.PriorityId = MapPriority(input.Priority);
         assignment.Deadline = input.Deadline;
 
         await _assignmentRepository.UpdateAsync(assignment);
-        return MapToResponse(assignment);
     }
 
     public async Task DeleteAsync(int id)
@@ -96,22 +87,14 @@ public class AssignmentService : IAssignmentService
         await _assignmentRepository.DeleteAsync(id);
     }
 
-    public async Task<AssignmentResponse> UpdateStatusAsync(int id, string status)
+    public async Task UpdateStatusAsync(int assigmentId, string status)
     {
-        int statusId = status switch
-        {
-            "todo" => 1,
-            "in-progress" => 2,
-            "done" => 3,
-            _ => 1
-        };
+        int statusId = MapPriority(status);
 
-        await _assignmentRepository.UpdateStatusAsync(id, statusId);
-        var assignment = await _assignmentRepository.GetByIdAsync(id);
-        return MapToResponse(assignment!);
+        await _assignmentRepository.UpdateStatusAsync(assigmentId, statusId);
     }
 
-    public async Task<AssignmentResponse> ChangeOwnerAsync(int assignmentId, int newUserId)
+    public async Task ChangeOwnerAsync(int assignmentId, int newUserId)
     {
         var assignment = await _assignmentRepository.GetByIdAsync(assignmentId);
         if (assignment == null)
@@ -122,21 +105,6 @@ public class AssignmentService : IAssignmentService
             throw new Exception("Пользователь не найден");
 
         await _assignmentRepository.ChangeOwnerAsync(assignmentId, newUserId);
-        
-        var updated = await _assignmentRepository.GetByIdAsync(assignmentId);
-        return MapToResponse(updated!);
-    }
-
-    public async Task<AssignmentResponse> UpdateContentAsync(int assignmentId, string title, string? description)
-    {
-        var assignment = await _assignmentRepository.GetByIdAsync(assignmentId);
-        if (assignment == null)
-            throw new Exception("Задача не найдена");
-
-        await _assignmentRepository.UpdateContentAsync(assignmentId, title, description);
-        
-        var updated = await _assignmentRepository.GetByIdAsync(assignmentId);
-        return MapToResponse(updated!);
     }
 
     private AssignmentResponse MapToResponse(Assignment a)
@@ -149,10 +117,19 @@ public class AssignmentService : IAssignmentService
             a.User.Username,
             a.Status.Name,
             a.Priority.Name,
-            a.TeamId,
-            a.Team?.Name,
             a.Deadline,
             a.CreatedAt
         );
+    }
+
+    private int MapPriority(string priority)
+    {
+        return priority switch
+        {
+            "low" => 1,
+            "medium" => 2,
+            "high" => 3,
+            _ => 2
+        };
     }
 }

@@ -39,7 +39,6 @@ public class TeamRepository : ITeamRepository
             .Include(a => a.User)
             .Include(a => a.Status)
             .Include(a => a.Priority)
-            .Where(a => a.TeamId == teamId)
             .ToListAsync();
 
     public async Task<Team> CreateAsync(Team team)

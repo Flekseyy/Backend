@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Application.DTOs.Inputs;
+using WebApplication1.Application.DTOs.Inputs.Auth;
 using WebApplication1.Application.DTOs.Responses;
 using WebApplication1.Domain.Interfaces.Services;
 
@@ -18,7 +19,7 @@ public class AuthController : ControllerBase
     public AuthController(IAuthService authService) => _authService = authService;
 
     [HttpPost("register")]
-    public async Task<ActionResult<UserResponse>> Register([FromBody] UserInput input)
+    public async Task<IActionResult> Register([FromBody] UserInput input)
     {
         try
         {
@@ -46,8 +47,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var response = await _authService.LoginAsync(input.Email, input.Password);
-            await SetAuthCookie(response.Id, response.Username, response.Email);
+            var response = await _authService.LoginAsync(input.Email, input.Password, HttpContext);
             
             return Ok(response);
         }
@@ -63,39 +63,6 @@ public class AuthController : ControllerBase
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Ok(new { message = "Выход выполнен успешно" });
-    }
-
-    [HttpGet("user-info")]
-    [Authorize]
-    public ActionResult<UserResponse> GetCurrentUser()
-    {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userId))
-            return Unauthorized();
-
-        return Ok(new { userId = int.Parse(userId), username = User.Identity?.Name });
-    }
-
-    private async Task SetAuthCookie(int userId, string username, string email)
-    {
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-            new Claim(ClaimTypes.Name, username),
-            new Claim(ClaimTypes.Email, email)
-        };
-
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity);
-
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            principal,
-            new AuthenticationProperties 
-            { 
-                ExpiresUtc = DateTime.UtcNow.AddDays(7), 
-                IsPersistent = true 
-            });
     }
 
     private bool IsValidEmail(string email) =>

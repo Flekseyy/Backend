@@ -36,9 +36,9 @@ public class TeamController : ControllerBase
     }
 
     [HttpGet("{id}/users")]
-    public async Task<ActionResult<IEnumerable<UserResponse>>> GetUsers(int id)
+    public async Task<ActionResult<IEnumerable<UserResponse>>> GetTeamUsers(int teamId)
     {
-        var users = await _teamService.GetUsersInTeamAsync(id);
+        var users = await _teamService.GetUsersInTeamAsync(teamId);
         return Ok(users);
     }
 

@@ -17,21 +17,17 @@ public class RoleRepository : IRoleRepository
     public async Task<Role?> GetByIdAsync(int id) =>
         await _context.Roles.FindAsync(id);
 
-    public async Task<IEnumerable<Role>> GetByFilterAsync(string? name)
+    public IQueryable<Role> GetByFilterAsync(string filter)
     {
-        var query = _context.Roles.AsQueryable();
-        
-        if (!string.IsNullOrEmpty(name))
-            query = query.Where(r => r.Name.Contains(name));
-
-        return await query.ToListAsync();
+        return _context.Roles
+            .Where(x => x.Name.Contains(filter))
+            .AsQueryable();
     }
 
-    public async Task<Role> CreateAsync(Role role)
+    public async Task CreateAsync(Role role)
     {
         _context.Roles.Add(role);
         await _context.SaveChangesAsync();
-        return role;
     }
 
     public async Task DeleteAsync(int id)

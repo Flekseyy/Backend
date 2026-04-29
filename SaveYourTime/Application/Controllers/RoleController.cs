@@ -30,6 +30,7 @@ public class RoleController : ControllerBase
     public async Task<ActionResult<RoleResponse>> GetById(int id)
     {
         var role = await _roleService.GetByIdAsync(id);
+        
         if (role == null)
             return NotFound($"Роль с ID {id} не найдена");
         
@@ -37,19 +38,19 @@ public class RoleController : ControllerBase
     }
 
     [HttpGet("filter")]
-    public async Task<ActionResult<IEnumerable<RoleResponse>>> GetByFilter([FromQuery] string? name)
+    public async Task<ActionResult<IEnumerable<RoleResponse>>> GetByFilter([FromQuery] string filter)
     {
-        var roles = await _roleService.GetByFilterAsync(name);
+        var roles = await _roleService.GetByFilterAsync(filter);
         return Ok(roles);
     }
 
     [HttpPost]
-    public async Task<ActionResult<RoleResponse>> Create([FromBody] RoleInput input)
+    public async Task<ActionResult<RoleResponse>> Create([FromBody] EditRoleInput input)
     {
         try
         {
-            var role = await _roleService.CreateAsync(input);
-            return CreatedAtAction(nameof(GetById), new { id = role.Id }, role);
+            await _roleService.CreateAsync(input);
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -57,13 +58,13 @@ public class RoleController : ControllerBase
         }
     }
     
-    [HttpPut("{id}")]
-    public async Task<ActionResult<RoleResponse>> Update(int id, [FromBody] RoleInput input)
+    [HttpPut]
+    public async Task<ActionResult<RoleResponse>> Update([FromBody] RoleInput input)
     {
         try
         {
-            var role = await _roleService.UpdateAsync(id, input);
-            return Ok(role);
+            await _roleService.UpdateAsync(input);
+            return Ok();
         }
         catch (Exception ex)
         {

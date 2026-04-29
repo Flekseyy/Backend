@@ -8,8 +8,6 @@ public record AssignmentResponse(
     string UserName,
     string Status,      
     string Priority,
-    int? TeamId,
-    string? TeamName,
     DateTime? Deadline,
     DateTime CreatedAt
 );

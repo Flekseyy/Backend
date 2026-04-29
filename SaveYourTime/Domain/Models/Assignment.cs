@@ -7,12 +7,10 @@ public class Assignment
     public int UserId { get; set; }
     public int StatusId { get; set; }
     public int PriorityId { get; set; }
-    public int? TeamId { get; set; }
     public DateTime? Deadline { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public User User { get; set; } = null!;
     public AssignmentStatus Status { get; set; } = null!;
     public AssignmentPriority Priority { get; set; } = null!;
-    public Team? Team { get; set; }
 }

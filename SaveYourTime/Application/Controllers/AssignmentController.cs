@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Application.DTOs.Inputs;
+using WebApplication1.Application.DTOs.Inputs.Assigments;
 using WebApplication1.Application.DTOs.Responses;
 using WebApplication1.Domain.Interfaces.Services;
 
@@ -18,24 +19,26 @@ public class AssignmentController : ControllerBase
         _assignmentService = assignmentService;
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AssignmentResponse>>> GetAll() =>
-        Ok(await _assignmentService.GetAllAsync());
+    public async Task<ActionResult<IEnumerable<AssignmentResponse>>> GetAll()
+    {
+        var all = await _assignmentService.GetAllAsync();
+        return Ok(all);
+    }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<AssignmentResponse>> GetById(int id)
     {
         var assignment = await _assignmentService.GetByIdAsync(id);
         if (assignment == null) return NotFound($"Задача с ID {id} не найдена");
+        
         return Ok(assignment);
     }
 
     [HttpGet("filter")]
     public async Task<ActionResult<IEnumerable<AssignmentResponse>>> GetByFilter(
-        [FromQuery] string? title,
-        [FromQuery] int? statusId,
-        [FromQuery] int? userId)
+        [FromQuery] FilterAssigmentInput input)
     {
-        var assignments = await _assignmentService.GetByFilterAsync(title, statusId, userId);
+        var assignments = await _assignmentService.GetByFilterAsync(input);
         return Ok(assignments);
     }
 
@@ -44,13 +47,8 @@ public class AssignmentController : ControllerBase
     {
         try
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
-                return Unauthorized("Пользователь не авторизован");
-
-            var userId = int.Parse(userIdClaim);
-            var assignment = await _assignmentService.CreateAsync(input, userId);
-            return CreatedAtAction(nameof(GetById), new { id = assignment.Id }, assignment);
+            await _assignmentService.CreateAsync(input);
+            return Created();
         }
         catch (Exception ex)
         {
@@ -58,13 +56,13 @@ public class AssignmentController : ControllerBase
         }
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult<AssignmentResponse>> Update(int id, [FromBody] AssignmentInput input)
+    [HttpPut]
+    public async Task<ActionResult<AssignmentResponse>> Update([FromBody] ChangeAssigmentInput input)
     {
         try
         {
-            var assignment = await _assignmentService.UpdateAsync(id, input);
-            return Ok(assignment);
+            await _assignmentService.UpdateAsync(input);
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -79,13 +77,16 @@ public class AssignmentController : ControllerBase
         return NoContent();
     }
 
-    [HttpPatch("{id}/status")]
-    public async Task<ActionResult<AssignmentResponse>> UpdateStatus(int id, [FromBody] string status)
+    [HttpPatch("status")]
+    public async Task<ActionResult<AssignmentResponse>> UpdateStatus
+        (
+            [FromBody] int assigmentId,
+            [FromBody] string status)
     {
         try
         {
-            var assignment = await _assignmentService.UpdateStatusAsync(id, status);
-            return Ok(assignment);
+            await _assignmentService.UpdateStatusAsync(assigmentId, status);
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -93,27 +94,16 @@ public class AssignmentController : ControllerBase
         }
     }
 
-    [HttpPatch("{id}/owner")]
-    public async Task<ActionResult<AssignmentResponse>> ChangeOwner(int id, [FromBody] int newUserId)
+    [HttpPatch("owner")]
+    public async Task<ActionResult<AssignmentResponse>> ChangeOwner
+    (
+        [FromBody] int assigmentId,
+        [FromBody] int newUserId)
     {
         try
         {
-            var assignment = await _assignmentService.ChangeOwnerAsync(id, newUserId);
-            return Ok(assignment);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-
-    [HttpPatch("{id}/content")]
-    public async Task<ActionResult<AssignmentResponse>> UpdateContent(int id, [FromBody] UpdateContentInput input)
-    {
-        try
-        {
-            var assignment = await _assignmentService.UpdateContentAsync(id, input.Title, input.Description);
-            return Ok(assignment);
+            await _assignmentService.ChangeOwnerAsync(assigmentId, newUserId);
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -122,4 +112,3 @@ public class AssignmentController : ControllerBase
     }
 }
 
-public record UpdateContentInput(string Title, string? Description);

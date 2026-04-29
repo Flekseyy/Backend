@@ -9,7 +9,6 @@ public class User
     public int? RoleId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? LastLoginAt { get; set; }
-
     public Role? Role { get; set; }
     
     

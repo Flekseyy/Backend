@@ -16,7 +16,6 @@ public class AssignmentRepository : IAssignmentRepository
             .Include(a => a.User)
             .Include(a => a.Status)
             .Include(a => a.Priority)
-            .Include(a => a.Team)
             .ToListAsync();
 
     public async Task<Assignment?> GetByIdAsync(int id) =>
@@ -24,35 +23,21 @@ public class AssignmentRepository : IAssignmentRepository
             .Include(a => a.User)
             .Include(a => a.Status)
             .Include(a => a.Priority)
-            .Include(a => a.Team)
             .FirstOrDefaultAsync(a => a.Id == id);
 
-    public async Task<IEnumerable<Assignment>> GetByFilterAsync(string? title, int? statusId, int? userId)
+    public IQueryable<Assignment> GetByFilterAsync(int userId, string filter)
     {
-        var query = _context.Assignments
+        return  _context.Assignments
             .Include(a => a.User)
             .Include(a => a.Status)
             .Include(a => a.Priority)
-            .Include(a => a.Team)
             .AsQueryable();
-
-        if (!string.IsNullOrEmpty(title))
-            query = query.Where(a => a.Title.Contains(title));
-
-        if (statusId.HasValue)
-            query = query.Where(a => a.StatusId == statusId.Value);
-
-        if (userId.HasValue)
-            query = query.Where(a => a.UserId == userId.Value);
-
-        return await query.ToListAsync();
     }
 
-    public async Task<Assignment> CreateAsync(Assignment assignment)
+    public async Task CreateAsync(Assignment assignment)
     {
         _context.Assignments.Add(assignment);
         await _context.SaveChangesAsync();
-        return assignment;
     }
 
     public async Task UpdateAsync(Assignment assignment)

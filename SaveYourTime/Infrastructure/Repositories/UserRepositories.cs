@@ -22,15 +22,15 @@ public class UserRepository : IUserRepository
 
     public async Task<IEnumerable<User>> GetByFilterAsync(string? username, int? roleId)
     {
-        var query = _context.Users.Include(u => u.Role).Include(u => u.Teams).AsQueryable();
+        var query = _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Teams)
+            .Include(u => u.LeadingTeams)
+            .AsQueryable();
         
-        if (!string.IsNullOrEmpty(username))
-            query = query.Where(u => u.Username.Contains(username));
-        
-        if (roleId.HasValue)
-            query = query.Where(u => u.RoleId == roleId.Value);
-
-        return await query.ToListAsync();
+        return await query
+            .Where(u => u.Username == username || u.RoleId == roleId)
+            .ToListAsync();
     }
 
     public async Task CreateAsync(User user)
@@ -64,8 +64,6 @@ public class UserRepository : IUserRepository
             await _context.SaveChangesAsync();
         }
     }
-
-    
 
     public async Task<User?> GetByUsernameAsync(string username) =>
         await _context.Users.FirstOrDefaultAsync(u => u.Username == username);

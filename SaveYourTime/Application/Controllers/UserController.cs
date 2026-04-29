@@ -26,25 +26,18 @@ public class UserController : ControllerBase
     }
     
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserResponse>> GetById(int id)
+    public async Task<ActionResult<UserResponse>> GetById(int userId)
     {
-        var user = await _userService.GetByIdAsync(id);
+        var user = await _userService.GetByIdAsync(userId);
         if (user == null)
-            return NotFound($"Пользователь с ID {id} не найден");
+            return NotFound($"Пользователь с ID {userId} не найден");
         
         return Ok(user);
-    }
-    
-    [HttpGet("team/{teamId}")]
-    public async Task<ActionResult<IEnumerable<UserResponse>>> GetByTeam(int teamId)
-    {
-        var users = await _userService.GetByTeamIdAsync(teamId);
-        return Ok(users);
     }
 
     [HttpGet("filter")]
     public async Task<ActionResult<IEnumerable<UserResponse>>> GetByFilter(
-        [FromQuery] string? username,
+        [FromQuery] string username,
         [FromQuery] int? roleId)
     {
         var users = await _userService.GetByFilterAsync(username, roleId);
@@ -52,12 +45,12 @@ public class UserController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<ActionResult<UserResponse>> Create([FromBody] UserInput input)
+    public async Task<IActionResult> Create([FromBody] UserInput input)
     {
         try
         {
-            var user = await _userService.CreateAsync(input);
-            return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+            await _userService.CreateAsync(input);
+            return Created();
         }
         catch (Exception ex)
         {
@@ -65,13 +58,13 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult<UserResponse>> Update(int id, [FromBody] UserInput input)
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] UserInput input)
     {
         try
         {
-            var user = await _userService.UpdateAsync(id, input);
-            return Ok(user);
+            await _userService.UpdateAsync(input);
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -87,40 +80,12 @@ public class UserController : ControllerBase
     }
     
     [HttpPatch("{id}/role")]
-    public async Task<ActionResult<UserResponse>> ChangeRole(int id, [FromBody] int? roleId)
+    public async Task<ActionResult<UserResponse>> ChangeUserRole(int userId, [FromBody] int roleId)
     {
         try
         {
-            var user = await _userService.ChangeRoleAsync(id, roleId);
-            return Ok(user);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-
-    [HttpPatch("{id}/team")]
-    public async Task<ActionResult<UserResponse>> AddToTeam(int id, [FromBody] int teamId)
-    {
-        try
-        {
-            var user = await _userService.AddToTeamAsync(id, teamId);
-            return Ok(user);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-    
-    [HttpPatch("{id}/team/remove")]
-    public async Task<ActionResult<UserResponse>> RemoveFromTeam(int id)
-    {
-        try
-        {
-            var user = await _userService.RemoveFromTeamAsync(id);
-            return Ok(user);
+            await _userService.ChangeUserRoleAsync(userId, roleId);
+            return Ok();
         }
         catch (Exception ex)
         {

@@ -1,4 +1,8 @@
-﻿using WebApplication1.Domain.Interfaces.Services;
+﻿using System.Runtime.CompilerServices;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using WebApplication1.Domain.Interfaces.Services;
 using WebApplication1.Application.DTOs.Inputs;
 using WebApplication1.Application.DTOs.Responses;
 using WebApplication1.Domain.Interfaces.Repositories;
@@ -38,7 +42,7 @@ public class AuthService : IAuthService
         await _userRepository.CreateAsync(user);
     }
 
-    public async Task<UserResponse> LoginAsync(string email, string password)
+    public async Task<UserResponse> LoginAsync(string email, string password, HttpContext httpContext)
     {
         var user = await _userRepository.GetByEmailAsync(email);
 
@@ -46,17 +50,35 @@ public class AuthService : IAuthService
             throw new Exception("Неверный email или пароль");
 
         await _userRepository.UpdateLastLoginAsync(user.Id);
+        
+        await SetAuthCookie(user.Id, user.Username, user.Email, httpContext);
         return MapToResponse(user);
+    }
+    
+    private async Task SetAuthCookie(int userId, string username, string email, HttpContext httpContext)
+    {
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Name, username),
+            new Claim(ClaimTypes.Email, email)
+        };
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await httpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal,
+            new AuthenticationProperties 
+            { 
+                ExpiresUtc = DateTime.UtcNow.AddDays(7), 
+                IsPersistent = true 
+            });
     }
 
     private UserResponse MapToResponse(User user) =>
         new UserResponse(
-            user.Id,
-            user.Username,
-            user.Email,
-            user.RoleId,
-            user.Role?.Name,
-            user.CreatedAt,
-            user.LastLoginAt
+            user.Id
         );
 }

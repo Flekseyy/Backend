@@ -36,19 +36,13 @@ public class UserService : IUserService
         return users.Select(MapToResponse);
     }
 
-    public async Task<IEnumerable<UserResponse>> GetByTeamIdAsync(int teamId)
-    {
-        var users = await _teamRepository.GetUsersInTeamAsync(teamId);
-        return users.Select(MapToResponse);
-    }
-
     public async Task<IEnumerable<UserResponse>> GetByFilterAsync(string? username, int? roleId)
     {
         var users = await _userRepository.GetByFilterAsync(username, roleId);
         return users.Select(MapToResponse);
     }
 
-    public async Task<UserResponse> CreateAsync(UserInput input)
+    public async Task CreateAsync(UserInput input)
     {
         if (await _userRepository.ExistsByUsernameAsync(input.Username))
             throw new Exception("Пользователь с таким именем уже существует");
@@ -56,51 +50,29 @@ public class UserService : IUserService
         if (await _userRepository.ExistsByEmailAsync(input.Email))
             throw new Exception("Email уже зарегистрирован");
         
-        return null;
-
-        // if (input.RoleId.HasValue)
-        // {
-        //     var role = await _roleRepository.GetByIdAsync(input.RoleId.Value);
-        //     if (role == null)
-        //         throw new Exception("Роль не найдена");
-        // }
-        //
-        // if (input.TeamId.HasValue)
-        // {
-        //     var team = await _teamRepository.GetByIdAsync(input.TeamId.Value);
-        //     if (team == null)
-        //         throw new Exception("Команда не найдена");
-        // }
-        //
-        // var user = new User
-        // {
-        //     Username = input.Username,
-        //     Email = input.Email,
-        //     PasswordHash = PasswordHasher.Hash(input.Password),
-        //     RoleId = input.RoleId,
-        //     TeamId = input.TeamId == 0
-        //         ? null
-        //         : input.TeamId,
-        //     CreatedAt = DateTime.UtcNow
-        // };
-        //
-        // var created = await _userRepository.CreateAsync(user);
-        // return MapToResponse(created);
+        var user = new User
+        {
+            Username = input.Username,
+            Email = input.Email,
+            PasswordHash = PasswordHasher.Hash(input.Password),
+            RoleId = 2,
+            CreatedAt = DateTime.UtcNow
+        };
+        
+        await _userRepository.CreateAsync(user);
     }
 
-    public async Task<UserResponse> UpdateAsync(int id, UserInput input)
+    public async Task UpdateAsync(UserInput input)
     {
-        var user = await _userRepository.GetByIdAsync(id);
+        var user = await _userRepository.GetByIdAsync(input.UserId);
         if (user == null)
             throw new Exception("Пользователь не найден");
 
         user.Username = input.Username;
         user.Email = input.Email;
-        // user.RoleId = input.RoleId;
-        // user.TeamId = input.TeamId;
+        user.RoleId = input.RoleId;
 
         await _userRepository.UpdateAsync(user);
-        return MapToResponse(user);
     }
 
     public async Task DeleteAsync(int id)
@@ -108,49 +80,19 @@ public class UserService : IUserService
         await _userRepository.DeleteAsync(id);
     }
 
-    public async Task<UserResponse> ChangeRoleAsync(int userId, int? roleId)
+    public async Task ChangeUserRoleAsync(int userId, int roleId)
     {
-        if (roleId.HasValue)
-        {
-            var role = await _roleRepository.GetByIdAsync(roleId.Value);
-            if (role == null)
-                throw new Exception("Роль не найдена");
-        }
-
+        var role = await _roleRepository.GetByIdAsync(roleId);
+        if (role == null)
+            throw new Exception("Роль не найдена");
+        
         await _userRepository.ChangeRoleAsync(userId, roleId);
-        var user = await _userRepository.GetByIdAsync(userId);
-        return MapToResponse(user!);
-    }
-
-    public async Task<UserResponse> AddToTeamAsync(int userId, int teamId)
-    {
-        var team = await _teamRepository.GetByIdAsync(teamId);
-        if (team == null)
-            throw new Exception("Команда не найдена");
-
-        await _teamRepository.AddUserToTeamAsync(userId, teamId);
-        var user = await _userRepository.GetByIdAsync(userId);
-        return MapToResponse(user!);
-    }
-
-    public async Task<UserResponse> RemoveFromTeamAsync(int userId)
-    {
-        //TODO Убрать заглушку
-        await _teamRepository.RemoveUserFromTeamAsync(userId, teamId: 0);
-        var user = await _userRepository.GetByIdAsync(userId);
-        return MapToResponse(user!);
     }
 
     private UserResponse MapToResponse(User user)
     {
         return new UserResponse(
-            user.Id,
-            user.Username,
-            user.Email,
-            user.RoleId,
-            user.Role?.Name,
-            user.CreatedAt,
-            user.LastLoginAt
+            user.Id
         );
     }
 }

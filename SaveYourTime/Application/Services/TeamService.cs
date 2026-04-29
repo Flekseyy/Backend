@@ -37,9 +37,8 @@ public class TeamService : ITeamService
     public async Task<IEnumerable<UserResponse>> GetUsersInTeamAsync(int teamId)
     {
         var users = await _teamRepository.GetUsersInTeamAsync(teamId);
-        //TODO добавить TeamId и TeamName
         return users.Select(u => new UserResponse(
-            u.Id, u.Username, u.Email, u.RoleId, u.Role?.Name, u.CreatedAt, u.LastLoginAt
+            u.Username
         ));
     }
 

@@ -27,13 +27,13 @@ public class RoleService : IRoleService
         return role == null ? null : MapToResponse(role);
     }
 
-    public async Task<IEnumerable<RoleResponse>> GetByFilterAsync(string? name)
+    public async Task<IEnumerable<RoleResponse>> GetByFilterAsync(string filter)
     {
-        var roles = await _roleRepository.GetByFilterAsync(name);
+        var roles = _roleRepository.GetByFilterAsync(filter).AsEnumerable();
         return roles.Select(MapToResponse);
     }
     
-    public async Task<RoleResponse> CreateAsync(RoleInput input)
+    public async Task CreateAsync(EditRoleInput input)
     {
         var role = new Role
         {
@@ -41,13 +41,12 @@ public class RoleService : IRoleService
             Description = input.Description
         };
 
-        var created = await _roleRepository.CreateAsync(role);
-        return MapToResponse(created);
+        await _roleRepository.CreateAsync(role);
     }
 
-    public async Task<RoleResponse> UpdateAsync(int id, RoleInput input)
+    public async Task UpdateAsync(RoleInput input)
     {
-        var role = await _roleRepository.GetByIdAsync(id);
+        var role = await _roleRepository.GetByIdAsync(input.Id);
         if (role == null)
             throw new Exception("Роль не найдена");
 
@@ -55,7 +54,6 @@ public class RoleService : IRoleService
         role.Description = input.Description;
 
         await _roleRepository.UpdateAsync(role);
-        return MapToResponse(role);
     }
 
     public async Task DeleteAsync(int id)

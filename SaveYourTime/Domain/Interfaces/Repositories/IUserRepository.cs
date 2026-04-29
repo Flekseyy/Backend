@@ -12,7 +12,6 @@ public interface IUserRepository
     Task DeleteAsync(int id);
     Task ChangeRoleAsync(int userId, int? roleId);
     
-    Task<User?> GetByUsernameAsync(string username);
     Task<User?> GetByEmailAsync(string email);
     Task<bool> ExistsByUsernameAsync(string username);
     Task<bool> ExistsByEmailAsync(string email);
