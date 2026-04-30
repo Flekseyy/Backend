@@ -19,25 +19,21 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Role>(r =>
-        {
-            r.HasData(
-                new Role { Id = 1, Name = "admin", Description = "Administrator" },
-                new Role { Id = 2, Name = "User", Description = "Regular user" }
-            );
-        });
+        modelBuilder.Entity<Role>().HasData(
+            new Role { Id = 1, Name = "admin", Description = "Administrator" },
+            new Role { Id = 2, Name = "User", Description = "Regular user" }
+        );
         
-        // modelBuilder.Entity<AssignmentStatus>().HasData(
-        //     new AssignmentStatus { Id = 1, Name = "todo" },
-        //     new AssignmentStatus { Id = 2, Name = "in-progress" },
-        //     new AssignmentStatus { Id = 3, Name = "done" }
-        // );
-        //
-        // modelBuilder.Entity<AssignmentPriority>().HasData(
-        //     new AssignmentPriority { Id = 1, Name = "low" },
-        //     new AssignmentPriority { Id = 2, Name = "medium" },
-        //     new AssignmentPriority { Id = 3, Name = "high" }
-        // );
+        modelBuilder.Entity<AssignmentStatus>().HasData(
+            new AssignmentStatus { Id = 1, Name = "todo" },
+            new AssignmentStatus { Id = 2, Name = "in-progress" },
+            new AssignmentStatus { Id = 3, Name = "done" }
+        );
+        modelBuilder.Entity<AssignmentPriority>().HasData(
+            new AssignmentPriority { Id = 1, Name = "low" },
+            new AssignmentPriority { Id = 2, Name = "medium" },
+            new AssignmentPriority { Id = 3, Name = "high" }
+        );
 
 
         modelBuilder.Entity<User>()

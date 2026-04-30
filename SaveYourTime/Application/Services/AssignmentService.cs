@@ -12,15 +12,21 @@ public class AssignmentService : IAssignmentService
     private readonly IAssignmentRepository _assignmentRepository;
     private readonly IUserRepository _userRepository;
     private readonly IAssignmentPriorityRepository _priorityRepository;
+    private readonly ICurrentUserService _currentUserService;
+    private readonly ILogger<AssignmentService> _logger;
     
     public AssignmentService(
         IAssignmentRepository assignmentRepository,
         IUserRepository userRepository,
-        IAssignmentPriorityRepository priorityRepository)
+        IAssignmentPriorityRepository priorityRepository,
+        ICurrentUserService currentUserService,
+        ILogger<AssignmentService> logger)
     {
         _assignmentRepository = assignmentRepository;
         _userRepository = userRepository;
         _priorityRepository = priorityRepository;
+        _currentUserService = currentUserService;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<AssignmentResponse>> GetAllAsync()
@@ -43,8 +49,12 @@ public class AssignmentService : IAssignmentService
         return assignments.Select(MapToResponse);
     }
 
-    public async Task CreateAsync(AssignmentInput input)
+    public async Task<int> CreateAsync(AssignmentInput input)
     {
+        var currentUserId = _currentUserService.GetCurrentUserId()
+                            ?? throw new UnauthorizedAccessException("Пользователь не аутентифицирован");
+
+        _logger.LogInformation("Creating assignment for user {UserId}: {Title}", currentUserId, input.Title);
 
         int priorityId = input.Priority switch
         {
@@ -58,7 +68,7 @@ public class AssignmentService : IAssignmentService
         {
             Title = input.Title,
             Description = input.Description,
-            UserId = input.UserId,
+            UserId = currentUserId,
             StatusId = 1, // статус новая по умолчанию
             PriorityId = priorityId,
             Deadline = input.Deadline,
@@ -66,6 +76,10 @@ public class AssignmentService : IAssignmentService
         };
 
         await _assignmentRepository.CreateAsync(assignment);
+        
+        _logger.LogInformation("Assignment created with ID {AssignmentId}", assignment.Id);
+        
+        return assignment.Id;
     }
 
     public async Task UpdateAsync(ChangeAssigmentInput input)
@@ -87,11 +101,11 @@ public class AssignmentService : IAssignmentService
         await _assignmentRepository.DeleteAsync(id);
     }
 
-    public async Task UpdateStatusAsync(int assigmentId, string status)
+    public async Task UpdateStatusAsync(int assignmentId, string status)
     {
         int statusId = MapPriority(status);
 
-        await _assignmentRepository.UpdateStatusAsync(assigmentId, statusId);
+        await _assignmentRepository.UpdateStatusAsync(assignmentId, statusId);
     }
 
     public async Task ChangeOwnerAsync(int assignmentId, int newUserId)

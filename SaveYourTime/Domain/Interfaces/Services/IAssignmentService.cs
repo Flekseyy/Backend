@@ -10,7 +10,7 @@ public interface IAssignmentService
     Task<AssignmentResponse?> GetByIdAsync(int id);
     Task<IEnumerable<AssignmentResponse>> GetByFilterAsync(FilterAssigmentInput input);
     
-    Task CreateAsync(AssignmentInput input);
+    Task<int> CreateAsync(AssignmentInput input);
     Task UpdateAsync(ChangeAssigmentInput input);
     Task DeleteAsync(int id);
     Task UpdateStatusAsync(int assignmentId, string status);

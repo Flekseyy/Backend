@@ -1,6 +1,8 @@
 ﻿namespace WebApplication1.Domain.Interfaces.Services;
 
-public class ICurrentUserService
+public interface ICurrentUserService
 {
-    
+    int? GetCurrentUserId();
+    string? GetCurrentUserName();
+    bool IsAuthenticated();
 }

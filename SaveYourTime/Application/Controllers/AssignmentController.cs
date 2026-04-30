@@ -43,12 +43,16 @@ public class AssignmentController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<AssignmentResponse>> Create([FromBody] AssignmentInput input)
+    public async Task<ActionResult<int>> Create([FromBody] AssignmentInput input)
     {
         try
         {
-            await _assignmentService.CreateAsync(input);
-            return Created();
+            var newId = await _assignmentService.CreateAsync(input);
+            return Created($"/api/Assignment/{newId}", newId);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
         }
         catch (Exception ex)
         {

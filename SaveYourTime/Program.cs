@@ -30,22 +30,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 // Cookie
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.Cookie.Name = "AuthToken";
-        options.Cookie.HttpOnly = true;      
-        options.Cookie.SecurePolicy = CookieSecurePolicy.None;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always; 
-        options.Cookie.SameSite = SameSiteMode.Lax;
-        options.ExpireTimeSpan = TimeSpan.FromDays(7);
-        options.SlidingExpiration = true;
-        options.LoginPath = "/api/auth/login";
-        options.LogoutPath = "/api/auth/logout";
-    });
-
-builder.Services.AddAuthorization();
-
+builder.Services.ConfigureAuth();
 // Repo
 builder.Services.ConfigureRepositories(builder.Configuration);
 
@@ -62,15 +47,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "SaveYourTime API V1");
     });
 }
 
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
+app.UseExceptionHandling();
 
 app.UseAuthentication();
-app.UseAuthorization(); 
+app.UseAuthorization();
 
 app.MapControllers();
 

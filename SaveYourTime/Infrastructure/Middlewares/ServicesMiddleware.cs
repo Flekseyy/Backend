@@ -7,6 +7,8 @@ public static class ServicesMiddleware
 {
     public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddHttpContextAccessor(); 
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IAssignmentService, AssignmentService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IRoleService, RoleService>();
