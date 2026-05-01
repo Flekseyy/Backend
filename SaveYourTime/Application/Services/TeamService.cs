@@ -39,7 +39,10 @@ public class TeamService : ITeamService
         var users = await _teamRepository.GetUsersInTeamAsync(teamId);
         return users.Select(u => new UserResponse(
             u.Id,
-            u.Username
+            u.Username,
+            u.Email ?? string.Empty,
+            u.CreatedAt,
+            u.Assignments?.Count(a => a.StatusId == 3) ?? 0
         ));
     }
 

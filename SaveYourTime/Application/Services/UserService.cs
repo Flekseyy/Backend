@@ -91,9 +91,13 @@ public class UserService : IUserService
 
     private UserResponse MapToResponse(User user)
     {
+        var completedCount = user.Assignments?.Count(a => a.StatusId == 3) ?? 0;
         return new UserResponse(
             user.Id,
-            user.Username
+            user.Username,
+            user.Email,
+            user.CreatedAt,
+            completedCount
         );
     }
 }

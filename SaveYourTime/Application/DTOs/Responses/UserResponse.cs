@@ -2,5 +2,8 @@
 
 public record UserResponse(
     int Id,
-    string UserName
+    string UserName,
+    string Email,
+    DateTime CreatedAt,
+    int CompletedTasksCount
 );

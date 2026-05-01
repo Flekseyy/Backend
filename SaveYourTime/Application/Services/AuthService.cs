@@ -80,6 +80,9 @@ public class AuthService : IAuthService
     private UserResponse MapToResponse(User user) =>
         new UserResponse(
             user.Id,
-            user.Username
+            user.Username,
+            user.Email ?? string.Empty,
+            user.CreatedAt,
+            user.Assignments?.Count(a => a.StatusId == 3) ?? 0
         );
 }
