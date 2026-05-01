@@ -13,4 +13,5 @@ public interface IAssignmentRepository
     Task DeleteAsync(int id);
     Task UpdateStatusAsync(int assignmentId, int statusId);
     Task ChangeOwnerAsync(int assignmentId, int newUserId);
+    Task<IEnumerable<Assignment>> GetByUserIdAsync(int userId);
 }

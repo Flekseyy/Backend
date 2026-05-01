@@ -76,6 +76,16 @@ public class AssignmentRepository : IAssignmentRepository
         }
     }
 
+    public async Task<IEnumerable<Assignment>> GetByUserIdAsync(int userId)
+    {
+        return await _context.Assignments
+            .Include(a => a.User)
+            .Include(a => a.Status)
+            .Include(a => a.Priority)
+            .Where(a => a.UserId == userId)
+            .ToListAsync();
+    }
+
     public async Task UpdateContentAsync(int assignmentId, string title, string? description)
     {
         var assignment = await _context.Assignments.FindAsync(assignmentId);

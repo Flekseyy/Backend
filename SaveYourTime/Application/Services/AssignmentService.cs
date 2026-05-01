@@ -31,7 +31,10 @@ public class AssignmentService : IAssignmentService
 
     public async Task<IEnumerable<AssignmentResponse>> GetAllAsync()
     {
-        var assignments = await _assignmentRepository.GetAllAsync();
+        var currentUserId = _currentUserService.GetCurrentUserId()
+                            ?? throw new UnauthorizedAccessException("Пользователь не аутентифицирован");
+
+        var assignments = await _assignmentRepository.GetByUserIdAsync(currentUserId);
         return assignments.Select(MapToResponse);
     }
 
