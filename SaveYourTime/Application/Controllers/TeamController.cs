@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Application.DTOs.Inputs;
 using WebApplication1.Application.DTOs.Responses;
 using WebApplication1.Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Http; // Для IFormFile
 
 namespace WebApplication1.Application.Controllers;
 
@@ -12,10 +13,12 @@ namespace WebApplication1.Application.Controllers;
 public class TeamController : ControllerBase
 {
     private readonly ITeamService _teamService;
+    private readonly IFileStorageService _fileStorageService; // <-- НОВОЕ ПОЛЕ
 
-    public TeamController(ITeamService teamService)
+    public TeamController(ITeamService teamService, IFileStorageService fileStorageService)
     {
         _teamService = teamService;
+        _fileStorageService = fileStorageService; 
     }
     
     [HttpGet]
@@ -51,10 +54,25 @@ public class TeamController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<ActionResult> Create([FromBody] TeamInput input)
+    public async Task<ActionResult> Create(
+        [FromForm] string name,
+        [FromForm] int leaderId,
+        [FromForm] string? description,
+        IFormFile? avatarFile)
     {
         try
         {
+            // Сохраняем файл (если есть) и получаем путь
+            string? avatarUrl = await _fileStorageService.SaveFileAsync(avatarFile, "teams");
+
+            var input = new TeamInput(
+                LeaderId: leaderId,
+                teamId: 0, // При создании ID ещё нет
+                Name: name,
+                Description: description,
+                AvatarUrl: avatarUrl
+            );
+
             await _teamService.CreateAsync(input);
             return Ok();
         }
@@ -65,16 +83,48 @@ public class TeamController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<ActionResult> Update([FromBody] TeamInput input)
+    public async Task<ActionResult> Update(
+        [FromForm] int teamId,
+        [FromForm] string name,
+        [FromForm] string? description,
+        IFormFile? avatarFile)
     {
         try
         {
+            var currentTeam = await _teamService.GetByIdAsync(teamId);
+            if (currentTeam == null)
+                return NotFound("Команда не найдена");
+
+            string? finalAvatarUrl = currentTeam.AvatarUrl;
+
+            // Если пришёл новый файл — заменяем старый
+            if (avatarFile != null && avatarFile.Length > 0)
+            {
+                // Удаляем старый файл (если был)
+                if (!string.IsNullOrEmpty(currentTeam.AvatarUrl))
+                {
+                    await _fileStorageService.DeleteFileAsync(currentTeam.AvatarUrl);
+                }
+
+                // Сохраняем новый
+                finalAvatarUrl = await _fileStorageService.SaveFileAsync(avatarFile, "teams");
+            }
+            // Если файл не пришёл — оставляем старую аватарку
+
+            var input = new TeamInput(
+                LeaderId: currentTeam.LeaderId ?? 0,
+                teamId: teamId,
+                Name: name,
+                Description: description,
+                AvatarUrl: finalAvatarUrl
+            );
+
             await _teamService.UpdateAsync(input);
             return Ok();
         }
         catch (Exception ex)
         {
-            return NotFound(ex.Message);
+            return BadRequest(ex.Message);
         }
     }
 

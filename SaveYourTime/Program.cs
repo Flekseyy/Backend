@@ -6,6 +6,7 @@ using WebApplication1.Domain.Interfaces.Services;
 using WebApplication1.Infrastructure.Contexts;
 using WebApplication1.Infrastructure.Middlewares;
 using WebApplication1.Infrastructure.Repositories;
+using WebApplication1.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,7 @@ builder.Services.ConfigureRepositories(builder.Configuration);
 
 // Services
 builder.Services.ConfigureServices(builder.Configuration);
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 
 var app = builder.Build();
 
@@ -57,6 +59,8 @@ app.UseExceptionHandling();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseStaticFiles();
 
 app.MapControllers();
 
