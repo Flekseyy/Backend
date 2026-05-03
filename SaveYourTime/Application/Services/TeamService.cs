@@ -60,6 +60,7 @@ public class TeamService : ITeamService
         {
             Name = input.Name,
             Description = input.Description,
+            AvatarUrl = input.AvatarUrl, // <-- ДОБАВЛЕНО
             LeaderId = user!.Id,
             CreatedAt = DateTime.UtcNow,
             
@@ -77,6 +78,7 @@ public class TeamService : ITeamService
 
         team.Name = input.Name;
         team.Description = input.Description;
+        team.AvatarUrl = input.AvatarUrl; // <-- ДОБАВЛЕНО
 
         await _teamRepository.UpdateAsync(team);
     }
@@ -111,6 +113,7 @@ public class TeamService : ITeamService
             team.Id,
             team.Name,
             team.Description,
+            team.AvatarUrl, // <-- дабавил аватарку
             team.LeaderId,
             team.Leader?.Username,
             team.CreatedAt
