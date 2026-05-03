@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebApplication1.Infrastructure.Contexts;
@@ -11,9 +12,11 @@ using WebApplication1.Infrastructure.Contexts;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260503092441_AddAvatarUrlToTeam")]
+    partial class AddAvatarUrlToTeam
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -60,6 +63,9 @@ namespace WebApplication1.Migrations
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("TeamId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -72,6 +78,8 @@ namespace WebApplication1.Migrations
                     b.HasIndex("PriorityId");
 
                     b.HasIndex("StatusId");
+
+                    b.HasIndex("TeamId");
 
                     b.HasIndex("UserId");
 
@@ -211,44 +219,6 @@ namespace WebApplication1.Migrations
                     b.ToTable("Teams");
                 });
 
-            modelBuilder.Entity("WebApplication1.Domain.Models.TeamAssignment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("StatusId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TeamId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StatusId");
-
-                    b.HasIndex("TeamId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("TeamAssignments");
-                });
-
             modelBuilder.Entity("WebApplication1.Domain.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -317,6 +287,10 @@ namespace WebApplication1.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("WebApplication1.Domain.Models.Team", null)
+                        .WithMany("Assignments")
+                        .HasForeignKey("TeamId");
+
                     b.HasOne("WebApplication1.Domain.Models.User", "User")
                         .WithMany("Assignments")
                         .HasForeignKey("UserId")
@@ -341,32 +315,6 @@ namespace WebApplication1.Migrations
                     b.Navigation("Leader");
                 });
 
-            modelBuilder.Entity("WebApplication1.Domain.Models.TeamAssignment", b =>
-                {
-                    b.HasOne("WebApplication1.Domain.Models.AssignmentStatus", "Status")
-                        .WithMany("TeamAssignments")
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("WebApplication1.Domain.Models.Team", "Team")
-                        .WithMany("TeamAssignments")
-                        .HasForeignKey("TeamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebApplication1.Domain.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Status");
-
-                    b.Navigation("Team");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("WebApplication1.Domain.Models.User", b =>
                 {
                     b.HasOne("WebApplication1.Domain.Models.Role", "Role")
@@ -385,8 +333,6 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Domain.Models.AssignmentStatus", b =>
                 {
                     b.Navigation("Assignments");
-
-                    b.Navigation("TeamAssignments");
                 });
 
             modelBuilder.Entity("WebApplication1.Domain.Models.Role", b =>
@@ -396,7 +342,7 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Domain.Models.Team", b =>
                 {
-                    b.Navigation("TeamAssignments");
+                    b.Navigation("Assignments");
                 });
 
             modelBuilder.Entity("WebApplication1.Domain.Models.User", b =>
