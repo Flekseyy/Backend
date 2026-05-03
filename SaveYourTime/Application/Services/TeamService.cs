@@ -60,7 +60,7 @@ public class TeamService : ITeamService
         {
             Name = input.Name,
             Description = input.Description,
-            AvatarUrl = input.AvatarUrl, // <-- ДОБАВЛЕНО
+            AvatarUrl = input.AvatarUrl,
             LeaderId = user!.Id,
             CreatedAt = DateTime.UtcNow,
             
@@ -78,7 +78,7 @@ public class TeamService : ITeamService
 
         team.Name = input.Name;
         team.Description = input.Description;
-        team.AvatarUrl = input.AvatarUrl; // <-- ДОБАВЛЕНО
+        team.AvatarUrl = input.AvatarUrl;
 
         await _teamRepository.UpdateAsync(team);
     }
@@ -88,9 +88,9 @@ public class TeamService : ITeamService
         await _teamRepository.DeleteAsync(id);
     }
 
-    public async Task AddUserToTeamAsync(string email, int teamId)
+    public async Task AddUserToTeamAsync(int userId, int teamId)
     {
-        await _teamRepository.AddUserToTeamAsync(email, teamId);
+        await _teamRepository.AddUserToTeamAsync(userId, teamId);
     }
 
     public async Task RemoveUserFromTeamAsync(int teamId, int userId)
@@ -113,7 +113,7 @@ public class TeamService : ITeamService
             team.Id,
             team.Name,
             team.Description,
-            team.AvatarUrl, // <-- дабавил аватарку
+            team.AvatarUrl,
             team.LeaderId,
             team.Leader?.Username,
             team.CreatedAt

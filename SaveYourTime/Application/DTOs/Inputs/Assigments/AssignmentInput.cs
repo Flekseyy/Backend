@@ -4,11 +4,10 @@ namespace WebApplication1.Application.DTOs.Inputs.Assigments;
 
 public record AssignmentInput(
         [Required]
-        [StringLength(500, MinimumLength = 1)]
+        [StringLength(200, MinimumLength = 1)]
         string Title,
 
-        // изменение длины, было 1000
-        [StringLength(1500)] string? Description,
+        [StringLength(1000)] string? Description,
 
         [Required] [StringLength(20)] string Priority,
  

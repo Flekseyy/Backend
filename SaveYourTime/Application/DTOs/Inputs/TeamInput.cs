@@ -5,5 +5,5 @@ public record TeamInput(
     int teamId,
     string Name,
     string? Description = null,
-    string? AvatarUrl = null // <-- НОВОЕ ПОЛЕ
+    string? AvatarUrl = null
 );

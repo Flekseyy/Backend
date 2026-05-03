@@ -46,9 +46,13 @@ public class AssignmentService : IAssignmentService
 
     public async Task<IEnumerable<AssignmentResponse>> GetByFilterAsync(FilterAssigmentInput input)
     {
+        var currentUserId = _currentUserService.GetCurrentUserId()
+                            ?? throw new UnauthorizedAccessException("Пользователь не аутентифицирован");
+
         var assignments = _assignmentRepository
-            .GetByFilterAsync(input.UserId, input.Filter)
+            .GetByFilterAsync(currentUserId, input.Filter)
             .AsEnumerable();
+
         return assignments.Select(MapToResponse);
     }
 
@@ -106,7 +110,7 @@ public class AssignmentService : IAssignmentService
 
     public async Task UpdateStatusAsync(int assignmentId, string status)
     {
-        int statusId = MapPriority(status);
+        int statusId = MapStatus(status);
 
         await _assignmentRepository.UpdateStatusAsync(assignmentId, statusId);
     }
@@ -147,6 +151,18 @@ public class AssignmentService : IAssignmentService
             "medium" => 2,
             "high" => 3,
             _ => 2
+        };
+    }
+
+    private int MapStatus(string status)
+    {
+        var s = status.Trim().ToLowerInvariant();
+        return s switch
+        {
+            "todo" => 1,
+            "in-progress" => 2,
+            "done" => 3,
+            _ => 1
         };
     }
 }

@@ -15,14 +15,12 @@ public class TeamRepository : ITeamRepository
         await _context.Teams
             .Include(t => t.Leader)
             .Include(t => t.Members)
-            .Include(t => t.Assignments)
             .ToListAsync();
 
     public async Task<Team?> GetByIdAsync(int id) =>
          await _context.Teams
             .Include(t => t.Leader)
             .Include(t => t.Members)
-            .Include(t => t.Assignments)
             .FirstOrDefaultAsync(t => t.Id == id);
 
     public async Task<IEnumerable<User>> GetUsersInTeamAsync(int teamId)
@@ -64,10 +62,10 @@ public class TeamRepository : ITeamRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task AddUserToTeamAsync(string email, int teamId)
+    public async Task AddUserToTeamAsync(int userId, int teamId)
     {
         var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == email);
+            .FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)
         {
@@ -111,7 +109,7 @@ public class TeamRepository : ITeamRepository
             throw new Exception("Team not found");
         }
 
-        bool alreadyInTeam = user.Teams.Any(t => t.Id == userId);
+        bool alreadyInTeam = user.Teams.Any(t => t.Id == teamId);
 
         if (alreadyInTeam)
         {
