@@ -63,7 +63,7 @@ public class TeamService : ITeamService
             AvatarUrl = input.AvatarUrl,
             LeaderId = user!.Id,
             CreatedAt = DateTime.UtcNow,
-            
+
             Members = [user]
         };
 
@@ -109,6 +109,14 @@ public class TeamService : ITeamService
 
     private TeamResponse MapToResponse(Team team)
     {
+        var members = team.Members?.Select(m => new UserResponse(
+            m.Id,
+            m.Username,
+            m.Email ?? string.Empty,
+            m.CreatedAt,
+            m.Assignments?.Count(a => a.StatusId == 3) ?? 0
+        )).ToList();
+
         return new TeamResponse(
             team.Id,
             team.Name,
@@ -116,7 +124,8 @@ public class TeamService : ITeamService
             team.AvatarUrl,
             team.LeaderId,
             team.Leader?.Username,
-            team.CreatedAt
+            team.CreatedAt,
+            members
         );
     }
 

@@ -4,7 +4,7 @@ namespace WebApplication1.Application.DTOs.Inputs.TeamAssignments;
 
 public record UpdateTeamAssignmentInput(
     [Required] int Id,
-    [Required] [StringLength(200, MinimumLength = 1)] string Name,
+    [StringLength(200, MinimumLength = 1)] string? Name,
     [StringLength(1000)] string? Description,
     [Required] int StatusId,
     int? UserId

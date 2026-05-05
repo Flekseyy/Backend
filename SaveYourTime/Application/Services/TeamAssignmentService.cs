@@ -47,6 +47,14 @@ public class TeamAssignmentService : ITeamAssignmentService
                 throw new Exception("Пользователь не найден");
         }
 
+        int priorityId = input.Priority switch
+        {
+            "low" => 1,
+            "medium" => 2,
+            "high" => 3,
+            _ => 2
+        };
+
         var assignment = new TeamAssignment
         {
             TeamId = input.TeamId,
@@ -54,6 +62,8 @@ public class TeamAssignmentService : ITeamAssignmentService
             Description = input.Description,
             StatusId = 1,
             UserId = input.UserId,
+            Priority = input.Priority,
+            Deadline = input.Deadline,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -74,8 +84,12 @@ public class TeamAssignmentService : ITeamAssignmentService
                 throw new Exception("Пользователь не найден");
         }
 
-        assignment.Name = input.Name;
-        assignment.Description = input.Description;
+        if (!string.IsNullOrEmpty(input.Name))
+            assignment.Name = input.Name;
+
+        if (input.Description != null)
+            assignment.Description = input.Description;
+
         assignment.StatusId = input.StatusId;
         assignment.UserId = input.UserId;
 
@@ -97,7 +111,8 @@ public class TeamAssignmentService : ITeamAssignmentService
             a.Status?.Name ?? string.Empty,
             a.UserId,
             a.User?.Username,
+            a.Priority,
+            a.Deadline,
             a.CreatedAt
         );
 }
-

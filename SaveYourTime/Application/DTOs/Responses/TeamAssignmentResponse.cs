@@ -9,6 +9,8 @@ public record TeamAssignmentResponse(
     string Status,
     int? UserId,
     string? UserName,
+    string? Priority,
+    DateTime? Deadline,
     DateTime CreatedAt
 );
 

@@ -69,7 +69,7 @@ public class TeamRepository : ITeamRepository
 
         if (user == null)
         {
-            throw new Exception("User not found");
+            throw new Exception("Пользователь не найден");
         }
 
         var team = await _context.Teams
@@ -78,16 +78,18 @@ public class TeamRepository : ITeamRepository
 
         if (team == null)
         {
-            throw new Exception("Team not found");
+            throw new Exception("Команда не найдена");
         }
 
-        bool alreadyInTeam = team.Members.Any(t => t.Id == user.Id);
+        bool alreadyInTeam = team.Members.Any(m => m.Id == userId);
 
-        if (!alreadyInTeam)
+        if (alreadyInTeam)
         {
-            user.Teams.Add(team);
-            await _context.SaveChangesAsync();
+            throw new Exception("Пользователь уже состоит в команде");
         }
+
+        user.Teams.Add(team);
+        await _context.SaveChangesAsync();
     }
 
     public async Task RemoveUserFromTeamAsync(int teamId,int userId)

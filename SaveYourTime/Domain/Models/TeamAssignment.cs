@@ -15,5 +15,8 @@ public class TeamAssignment
     public int? UserId { get; set; }
     public User? User { get; set; }
 
+    public string? Priority { get; set; }
+    public DateTime? Deadline { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

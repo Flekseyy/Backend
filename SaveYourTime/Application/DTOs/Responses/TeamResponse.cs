@@ -7,5 +7,6 @@ public record TeamResponse(
     string? AvatarUrl,
     int? LeaderId,
     string? LeaderName,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    List<UserResponse>? Members = null
 );
