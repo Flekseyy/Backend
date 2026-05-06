@@ -6,8 +6,9 @@ public record AssignmentResponse(
     string? Description,
     int UserId,
     string UserName,
-    string Status,      
+    string Status,
     string Priority,
     DateTime? Deadline,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    DateTime? UpdatedAt
 );

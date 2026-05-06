@@ -140,7 +140,8 @@ public class TeamService : ITeamService
             a.Status.Name,
             a.Priority.Name,
             a.Deadline,
-            a.CreatedAt
+            a.CreatedAt,
+            a.UpdatedAt
         );
     }
 }

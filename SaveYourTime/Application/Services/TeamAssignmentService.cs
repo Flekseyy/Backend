@@ -93,6 +93,14 @@ public class TeamAssignmentService : ITeamAssignmentService
         assignment.StatusId = input.StatusId;
         assignment.UserId = input.UserId;
 
+        if (input.Priority != null)
+            assignment.Priority = input.Priority;
+
+        if (input.Deadline.HasValue)
+            assignment.Deadline = input.Deadline;
+
+        assignment.UpdatedAt = DateTime.UtcNow;
+
         await _teamAssignmentRepository.UpdateAsync(assignment);
     }
 
@@ -113,6 +121,7 @@ public class TeamAssignmentService : ITeamAssignmentService
             a.User?.Username,
             a.Priority,
             a.Deadline,
-            a.CreatedAt
+            a.CreatedAt,
+            a.UpdatedAt
         );
 }

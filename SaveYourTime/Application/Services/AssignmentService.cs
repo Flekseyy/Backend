@@ -14,7 +14,7 @@ public class AssignmentService : IAssignmentService
     private readonly IAssignmentPriorityRepository _priorityRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<AssignmentService> _logger;
-    
+
     public AssignmentService(
         IAssignmentRepository assignmentRepository,
         IUserRepository userRepository,
@@ -83,9 +83,9 @@ public class AssignmentService : IAssignmentService
         };
 
         await _assignmentRepository.CreateAsync(assignment);
-        
+
         _logger.LogInformation("Assignment created with ID {AssignmentId}", assignment.Id);
-        
+
         return assignment.Id;
     }
 
@@ -99,6 +99,7 @@ public class AssignmentService : IAssignmentService
         assignment.Description = input.Description;
         assignment.PriorityId = MapPriority(input.Priority);
         assignment.Deadline = input.Deadline;
+        assignment.UpdatedAt = DateTime.UtcNow;
 
         await _assignmentRepository.UpdateAsync(assignment);
     }
@@ -139,7 +140,8 @@ public class AssignmentService : IAssignmentService
             a.Status.Name,
             a.Priority.Name,
             a.Deadline,
-            a.CreatedAt
+            a.CreatedAt,
+            a.UpdatedAt
         );
     }
 

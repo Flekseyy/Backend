@@ -11,6 +11,6 @@ public record TeamAssignmentResponse(
     string? UserName,
     string? Priority,
     DateTime? Deadline,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    DateTime? UpdatedAt
 );
-

@@ -7,6 +7,7 @@ public record UpdateTeamAssignmentInput(
     [StringLength(200, MinimumLength = 1)] string? Name,
     [StringLength(1000)] string? Description,
     [Required] int StatusId,
-    int? UserId
+    int? UserId,
+    string? Priority,
+    DateTime? Deadline
 );
-
