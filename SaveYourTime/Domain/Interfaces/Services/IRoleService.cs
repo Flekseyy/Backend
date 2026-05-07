@@ -7,9 +7,9 @@ public interface IRoleService
 {
     Task<IEnumerable<RoleResponse>> GetAllAsync();
     Task<RoleResponse?> GetByIdAsync(int id);
-    Task<IEnumerable<RoleResponse>> GetByFilterAsync(string? name);
+    Task<IEnumerable<RoleResponse>> GetByFilterAsync(string filter);
     
-    Task<RoleResponse> CreateAsync(RoleInput input);
-    Task<RoleResponse> UpdateAsync(int id, RoleInput input);
+    Task CreateAsync(EditRoleInput input);
+    Task UpdateAsync(RoleInput input);
     Task DeleteAsync(int id);
 }

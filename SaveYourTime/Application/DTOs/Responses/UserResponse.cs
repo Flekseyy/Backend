@@ -2,12 +2,8 @@
 
 public record UserResponse(
     int Id,
-    string Username,
+    string UserName,
     string Email,
-    int? RoleId,
-    string? RoleName,
-    int? TeamId,
-    string? TeamName,
     DateTime CreatedAt,
-    DateTime? LastLoginAt
+    int CompletedTasksCount
 );

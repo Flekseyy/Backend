@@ -6,10 +6,9 @@ public record AssignmentResponse(
     string? Description,
     int UserId,
     string UserName,
-    int AssignmentStatusId,
-    string StatusName,
-    int? TeamId,
-    string? TeamName,
-    DateTime? DueDate,
-    DateTime CreatedAt
+    string Status,
+    string Priority,
+    DateTime? Deadline,
+    DateTime CreatedAt,
+    DateTime? UpdatedAt
 );

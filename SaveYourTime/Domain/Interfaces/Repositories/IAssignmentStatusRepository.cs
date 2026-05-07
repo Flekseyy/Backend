@@ -5,5 +5,5 @@ namespace WebApplication1.Domain.Interfaces.Repositories;
 public interface IAssignmentStatusRepository
 {
     Task<IEnumerable<AssignmentStatus>> GetAllAsync();
-    Task<AssignmentStatus?> GetByIdAsync(int id);
+    Task<AssignmentStatus?> GetByIdAsync(int? id);
 }

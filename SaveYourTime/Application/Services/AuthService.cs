@@ -1,4 +1,8 @@
-﻿using WebApplication1.Domain.Interfaces.Services;
+﻿using System.Runtime.CompilerServices;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using WebApplication1.Domain.Interfaces.Services;
 using WebApplication1.Application.DTOs.Inputs;
 using WebApplication1.Application.DTOs.Responses;
 using WebApplication1.Domain.Interfaces.Repositories;
@@ -19,70 +23,66 @@ public class AuthService : IAuthService
         _roleRepository = roleRepository;
     }
 
-    public async Task<UserResponse> RegisterAsync(UserInput input)
+    public async Task RegisterAsync(UserInput input)
     {
-        if (await _userRepository.ExistsByUsernameAsync(input.Username))
-            throw new Exception("Пользователь с таким именем уже существует");
-
         if (await _userRepository.ExistsByEmailAsync(input.Email))
             throw new Exception("Email уже зарегистрирован");
-        
-        if (input.RoleId.HasValue)
-        {
-            var role = await _roleRepository.GetByIdAsync(input.RoleId.Value);
-            if (role == null)
-                throw new Exception("Роль не найдена");
-        }
-        
+
+        var roleId = await _roleRepository.GetDefaultRoleId();
+
         var user = new User
         {
             Username = input.Username,
             Email = input.Email,
             PasswordHash = PasswordHasher.Hash(input.Password),
-            RoleId = input.RoleId ?? 2, 
-            TeamId = input.TeamId,
+            RoleId = roleId,
             CreatedAt = DateTime.UtcNow
         };
 
-        var createdUser = await _userRepository.CreateAsync(user);
-
-        return MapToResponse(createdUser);
+        await _userRepository.CreateAsync(user);
     }
-    
 
-    public async Task<UserResponse> LoginAsync(string usernameOrEmail, string password)
+    public async Task<UserResponse> LoginAsync(string email, string password, HttpContext httpContext)
     {
-        var user = await _userRepository.GetByUsernameAsync(usernameOrEmail)
-            ?? await _userRepository.GetByEmailAsync(usernameOrEmail);
+        var user = await _userRepository.GetByEmailAsync(email);
 
-        if (user == null)
-            throw new Exception("Неверный логин или пароль");
-        
-        if (!PasswordHasher.Verify(password, user.PasswordHash))
-            throw new Exception("Неверный логин или пароль");
-        
+        if (user == null || !PasswordHasher.Verify(password, user.PasswordHash))
+            throw new Exception("Неверный email или пароль");
+
         await _userRepository.UpdateLastLoginAsync(user.Id);
-
+        
+        await SetAuthCookie(user.Id, user.Username, user.Email, httpContext);
         return MapToResponse(user);
     }
-
-    public async Task LogoutAsync(int userId)
-    {
-        await Task.CompletedTask;
-    }
     
-    private UserResponse MapToResponse(User user)
+    private async Task SetAuthCookie(int userId, string username, string email, HttpContext httpContext)
     {
-        return new UserResponse(
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Name, username),
+            new Claim(ClaimTypes.Email, email)
+        };
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await httpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal,
+            new AuthenticationProperties 
+            { 
+                ExpiresUtc = DateTime.UtcNow.AddDays(7), 
+                IsPersistent = true 
+            });
+    }
+
+    private UserResponse MapToResponse(User user) =>
+        new UserResponse(
             user.Id,
             user.Username,
-            user.Email,
-            user.RoleId,
-            user.Role?.Name,
-            user.TeamId,
-            user.Team?.Name,
+            user.Email ?? string.Empty,
             user.CreatedAt,
-            user.LastLoginAt
+            user.Assignments?.Count(a => a.StatusId == 3) ?? 0
         );
-    }
 }
