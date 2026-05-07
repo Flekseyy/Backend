@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Application.Services;
 using WebApplication1.Domain.Interfaces.Repositories;
@@ -19,46 +20,46 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:3000")
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials());
+            .AllowCredentials()); 
 });
 
-// database
+// BD
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-// Repositories
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IAssignmentRepository, AssignmentRepository>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+// Cookie
+builder.Services.ConfigureAuth();
+// Repo
+builder.Services.ConfigureRepositories(builder.Configuration);
 
 // Services
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IAssignmentService, AssignmentService>();
-builder.Services.AddScoped<ITeamService, TeamService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.ConfigureServices(builder.Configuration);
 
 var app = builder.Build();
 
-// Create db
-app.UseDatabase(); 
+// Create BD
+app.UseDatabase();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "SaveYourTime API V1");
     });
 }
 
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
+app.UseExceptionHandling();
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseStaticFiles();
+
 app.MapControllers();
 
 app.Run();

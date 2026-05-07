@@ -21,7 +21,7 @@ public class TeamService : ITeamService
         _userRepository = userRepository;
         _assignmentRepository = assignmentRepository;
     }
-    
+
     public async Task<IEnumerable<TeamResponse>> GetAllAsync()
     {
         var teams = await _teamRepository.GetAllAsync();
@@ -38,55 +38,49 @@ public class TeamService : ITeamService
     {
         var users = await _teamRepository.GetUsersInTeamAsync(teamId);
         return users.Select(u => new UserResponse(
-            u.Id, u.Username, u.Email, u.RoleId, u.Role?.Name,
-            u.TeamId, u.Team?.Name, u.CreatedAt, u.LastLoginAt
+            u.Id,
+            u.Username,
+            u.Email ?? string.Empty,
+            u.CreatedAt,
+            u.Assignments?.Count(a => a.StatusId == 3) ?? 0
         ));
     }
 
     public async Task<IEnumerable<AssignmentResponse>> GetAssignmentsInTeamAsync(int teamId)
     {
         var assignments = await _teamRepository.GetAssignmentsInTeamAsync(teamId);
-        return assignments.Select(a => new AssignmentResponse(
-            a.Id, a.AssignmentInfo.Name, a.AssignmentInfo.Description,
-            a.UserId, a.User.Username, a.AssignmentStatusId,
-            a.AssignmentStatus.Name, a.TeamId, a.Team?.Name,
-            a.DueDate, a.CreatedAt
-        ));
+        return assignments.Select(MapAssignmentToResponse);
     }
-    
-    public async Task<TeamResponse> CreateAsync(TeamInput input)
+
+    public async Task CreateAsync(TeamInput input)
     {
-        if (input.LeaderId.HasValue)
-        {
-            var leader = await _userRepository.GetByIdAsync(input.LeaderId.Value);
-            if (leader == null)
-                throw new Exception("Лидер не найден");
-        }
+        var user = await _userRepository.GetByIdAsync(input.LeaderId);
 
         var team = new Team
         {
             Name = input.Name,
             Description = input.Description,
-            LeaderId = input.LeaderId,
-            CreatedAt = DateTime.UtcNow
+            AvatarUrl = input.AvatarUrl,
+            LeaderId = user!.Id,
+            CreatedAt = DateTime.UtcNow,
+
+            Members = [user]
         };
 
-        var created = await _teamRepository.CreateAsync(team);
-        return MapToResponse(created);
+        await _teamRepository.CreateAsync(team);
     }
 
-    public async Task<TeamResponse> UpdateAsync(int id, TeamInput input)
+    public async Task UpdateAsync(TeamInput input)
     {
-        var team = await _teamRepository.GetByIdAsync(id);
+        var team = await _teamRepository.GetByIdAsync(input.teamId);
         if (team == null)
             throw new Exception("Команда не найдена");
 
         team.Name = input.Name;
         team.Description = input.Description;
-        team.LeaderId = input.LeaderId;
+        team.AvatarUrl = input.AvatarUrl;
 
         await _teamRepository.UpdateAsync(team);
-        return MapToResponse(team);
     }
 
     public async Task DeleteAsync(int id)
@@ -94,54 +88,60 @@ public class TeamService : ITeamService
         await _teamRepository.DeleteAsync(id);
     }
 
-    public async Task<TeamResponse> AddUserToTeamAsync(int userId, int teamId)
+    public async Task AddUserToTeamAsync(int userId, int teamId)
     {
         await _teamRepository.AddUserToTeamAsync(userId, teamId);
-        var team = await _teamRepository.GetByIdAsync(teamId);
-        return MapToResponse(team!);
     }
 
-    public async Task<TeamResponse> RemoveUserFromTeamAsync(int userId)
+    public async Task RemoveUserFromTeamAsync(int teamId, int userId)
     {
-        await _teamRepository.RemoveUserFromTeamAsync(userId);
-        var user = await _userRepository.GetByIdAsync(userId);
-        var team = user?.TeamId.HasValue == true 
-            ? await _teamRepository.GetByIdAsync(user.TeamId.Value) 
-            : null;
-        return MapToResponse(team!);
+        await _teamRepository.RemoveUserFromTeamAsync(teamId, userId);
     }
 
-    public async Task<TeamResponse> SetTeamLeaderAsync(int teamId, int userId)
+    public async Task SetTeamLeaderAsync(int teamId, int userId)
     {
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)
             throw new Exception("Пользователь не найден");
 
         await _teamRepository.SetTeamLeaderAsync(teamId, userId);
-        var team = await _teamRepository.GetByIdAsync(teamId);
-        return MapToResponse(team!);
-    }
-
-    public async Task<TeamResponse> ChangeTeamLeaderAsync(int teamId, int newLeaderId)
-    {
-        var user = await _userRepository.GetByIdAsync(newLeaderId);
-        if (user == null)
-            throw new Exception("Пользователь не найден");
-
-        await _teamRepository.ChangeTeamLeaderAsync(teamId, newLeaderId);
-        var team = await _teamRepository.GetByIdAsync(teamId);
-        return MapToResponse(team!);
     }
 
     private TeamResponse MapToResponse(Team team)
     {
+        var members = team.Members?.Select(m => new UserResponse(
+            m.Id,
+            m.Username,
+            m.Email ?? string.Empty,
+            m.CreatedAt,
+            m.Assignments?.Count(a => a.StatusId == 3) ?? 0
+        )).ToList();
+
         return new TeamResponse(
             team.Id,
             team.Name,
             team.Description,
+            team.AvatarUrl,
             team.LeaderId,
             team.Leader?.Username,
-            team.CreatedAt
+            team.CreatedAt,
+            members
+        );
+    }
+
+    private AssignmentResponse MapAssignmentToResponse(Assignment a)
+    {
+        return new AssignmentResponse(
+            a.Id,
+            a.Title,
+            a.Description,
+            a.UserId,
+            a.User.Username,
+            a.Status.Name,
+            a.Priority.Name,
+            a.Deadline,
+            a.CreatedAt,
+            a.UpdatedAt
         );
     }
 }

@@ -9,60 +9,52 @@ public class AssignmentRepository : IAssignmentRepository
 {
     private readonly ApplicationDbContext _context;
 
-    public AssignmentRepository(ApplicationDbContext context)
-    {
-        _context = context;
-    }
-    
-    public async Task<IEnumerable<Assignment>> GetAllAsync()
-    {
-        return await _context.Assignments
+    public AssignmentRepository(ApplicationDbContext context) => _context = context;
+
+    public async Task<IEnumerable<Assignment>> GetAllAsync() =>
+        await _context.Assignments
             .Include(a => a.User)
-            .Include(a => a.AssignmentStatus)
-            .Include(a => a.AssignmentInfo)
+            .Include(a => a.Status)
+            .Include(a => a.Priority)
             .ToListAsync();
-    }
 
-    public async Task<Assignment?> GetByIdAsync(int id)
-    {
-        return await _context.Assignments
+    public async Task<Assignment?> GetByIdAsync(int id) =>
+        await _context.Assignments
             .Include(a => a.User)
-            .Include(a => a.AssignmentStatus)
-            .Include(a => a.AssignmentInfo)
+            .Include(a => a.Status)
+            .Include(a => a.Priority)
             .FirstOrDefaultAsync(a => a.Id == id);
-    }
 
-    public async Task<IEnumerable<Assignment>> GetByFilterAsync(string? title, int? statusId, int? userId)
+    public IQueryable<Assignment> GetByFilterAsync(int userId, string filter)
     {
         var query = _context.Assignments
             .Include(a => a.User)
-            .Include(a => a.AssignmentStatus)
-            .Include(a => a.AssignmentInfo)
+            .Include(a => a.Status)
+            .Include(a => a.Priority)
             .AsQueryable();
 
-        if (!string.IsNullOrEmpty(title))
-        {
-            query = query.Where(a => a.AssignmentInfo.Name!.Contains(title));
-        }
+        query = query.Where(a => a.UserId == userId);
 
-        if (statusId.HasValue)
-        {
-            query = query.Where(a => a.AssignmentStatusId == statusId.Value);
-        }
+        if (string.IsNullOrWhiteSpace(filter))
+            return query;
 
-        if (userId.HasValue)
-        {
-            query = query.Where(a => a.UserId == userId.Value);
-        }
+        var f = filter.Trim().ToLowerInvariant();
 
-        return await query.ToListAsync();
+        // Полнотекстового поиска тут нет — делаем простой, но полезный матч:
+        // - Title/Description содержит строку
+        // - или точное совпадение по имени статуса/приоритета
+        return query.Where(a =>
+            a.Title.ToLower().Contains(f) ||
+            (a.Description != null && a.Description.ToLower().Contains(f)) ||
+            a.Status.Name.ToLower() == f ||
+            a.Priority.Name.ToLower() == f
+        );
     }
-    
-    public async Task<Assignment> CreateAsync(Assignment assignment)
+
+    public async Task CreateAsync(Assignment assignment)
     {
         _context.Assignments.Add(assignment);
         await _context.SaveChangesAsync();
-        return assignment;
     }
 
     public async Task UpdateAsync(Assignment assignment)
@@ -86,7 +78,7 @@ public class AssignmentRepository : IAssignmentRepository
         var assignment = await _context.Assignments.FindAsync(assignmentId);
         if (assignment != null)
         {
-            assignment.AssignmentStatusId = statusId;
+            assignment.StatusId = statusId;
             await _context.SaveChangesAsync();
         }
     }
@@ -101,18 +93,24 @@ public class AssignmentRepository : IAssignmentRepository
         }
     }
 
+    public async Task<IEnumerable<Assignment>> GetByUserIdAsync(int userId)
+    {
+        return await _context.Assignments
+            .Include(a => a.User)
+            .Include(a => a.Status)
+            .Include(a => a.Priority)
+            .Where(a => a.UserId == userId)
+            .ToListAsync();
+    }
+
     public async Task UpdateContentAsync(int assignmentId, string title, string? description)
     {
         var assignment = await _context.Assignments.FindAsync(assignmentId);
         if (assignment != null)
         {
-            var info = await _context.AssignmentInfos.FindAsync(assignment.AssignmentInfoId);
-            if (info != null)
-            {
-                info.Name = title;
-                info.Description = description;
-                await _context.SaveChangesAsync();
-            }
+            assignment.Title = title;
+            assignment.Description = description;
+            await _context.SaveChangesAsync();
         }
     }
 }
