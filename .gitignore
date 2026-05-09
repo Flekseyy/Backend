@@ -6,6 +6,10 @@
 # dotenv files
 .env
 
+# ASP.NET Core — локальные настройки и секреты (не коммитить)
+**/appsettings.json
+**/appsettings.*.json
+
 
 # User-specific files
 *.rsuser
