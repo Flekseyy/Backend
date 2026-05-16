@@ -1,5 +1,4 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaveYourTime", "SaveYourTime\SaveYourTime.csproj", "{11BC1A7E-C983-422A-8078-E4CD2DAE8F05}"
 EndProject
 Global

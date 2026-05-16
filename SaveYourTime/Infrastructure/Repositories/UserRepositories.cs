@@ -69,7 +69,9 @@ public class UserRepository : IUserRepository
         await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
 
     public async Task<User?> GetByEmailAsync(string email) =>
-        await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        await _context.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.Email == email);
 
     public async Task<bool> ExistsByUsernameAsync(string username) =>
         await _context.Users.AnyAsync(u => u.Username == username);
