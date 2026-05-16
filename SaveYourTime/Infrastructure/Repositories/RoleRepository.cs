@@ -49,6 +49,6 @@ public class RoleRepository : IRoleRepository
     public async Task<int> GetDefaultRoleId()
     {
          return await Task.FromResult(_context.Roles
-            .FirstOrDefaultAsync(x => x.Name == "user").Id);
+            .FirstOrDefaultAsync(x => x.Name == "User").Id);
     }
 }

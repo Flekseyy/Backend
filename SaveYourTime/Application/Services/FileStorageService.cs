@@ -1,6 +1,6 @@
 using WebApplication1.Domain.Interfaces.Services;
 
-namespace WebApplication1.Infrastructure.Services;
+namespace WebApplication1.Application.Services;
 
 public class FileStorageService : IFileStorageService
 {
