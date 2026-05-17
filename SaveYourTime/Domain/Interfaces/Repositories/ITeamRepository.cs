@@ -8,6 +8,7 @@ public interface ITeamRepository
     Task<Team?> GetByIdAsync(int id);
     Task<IEnumerable<User>> GetUsersInTeamAsync(int teamId);
     Task<IEnumerable<Assignment>> GetAssignmentsInTeamAsync(int teamId);
+    Task<IEnumerable<Team>> GetByFilterAsync(string? name, int? leaderId);
     Task<Team> CreateAsync(Team team);
     Task DeleteAsync(int id);
     Task UpdateAsync(Team team);

@@ -8,6 +8,7 @@ public interface ITeamService
     Task<IEnumerable<TeamResponse>> GetAllAsync();
     Task<TeamResponse?> GetByIdAsync(int id);
     Task<IEnumerable<UserResponse>> GetUsersInTeamAsync(int teamId);
+    // Task<IEnumerable<TeamResponse>> GetByFilterAsync(string? name, int? leaderId);
 
     Task CreateAsync(TeamInput input);
     Task UpdateAsync(TeamInput input);

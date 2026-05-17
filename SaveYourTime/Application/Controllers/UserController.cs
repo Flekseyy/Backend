@@ -37,10 +37,9 @@ public class UserController : ControllerBase
 
     [HttpGet("filter")]
     public async Task<ActionResult<IEnumerable<UserResponse>>> GetByFilter(
-        [FromQuery] string username,
-        [FromQuery] int? roleId)
+        [FromQuery] FilterUserInput input)
     {
-        var users = await _userService.GetByFilterAsync(username, roleId);
+        var users = await _userService.GetByFilterAsync(input.Username, input.RoleId);
         return Ok(users);
     }
 

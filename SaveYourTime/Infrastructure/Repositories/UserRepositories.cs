@@ -28,9 +28,13 @@ public class UserRepository : IUserRepository
             .Include(u => u.LeadingTeams)
             .AsQueryable();
 
-        return await query
-            .Where(u => u.Username == username || u.RoleId == roleId)
-            .ToListAsync();
+        if (!string.IsNullOrWhiteSpace(username))
+            query = query.Where(u => u.Username.Contains(username));
+
+        if (roleId.HasValue)
+            query = query.Where(u => u.RoleId == roleId.Value);
+
+        return await query.ToListAsync();
     }
 
     public async Task CreateAsync(User user)
