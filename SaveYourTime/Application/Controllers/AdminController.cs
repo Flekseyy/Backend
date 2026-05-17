@@ -32,8 +32,7 @@ public class AdminController : ControllerBase
         _teamService = teamService;
         _teamAssignmentService = teamAssignmentService;
     }
-
-    // ========== СТАТИСТИКА ==========
+    
     [HttpGet("stats")]
     public async Task<ActionResult<object>> GetStats()
     {
@@ -51,7 +50,6 @@ public class AdminController : ControllerBase
         });
     }
 
-    // ========== ПОЛЬЗОВАТЕЛИ ==========
     [HttpGet("users")]
     public async Task<ActionResult<IEnumerable<UserResponse>>> GetAllUsers()
     {
@@ -81,29 +79,15 @@ public class AdminController : ControllerBase
     [HttpPost("users")]
     public async Task<IActionResult> CreateUser([FromBody] UserInput input)
     {
-        try
-        {
-            await _userService.CreateAsync(input);
-            return Created();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _userService.CreateAsync(input);
+        return Created();
     }
 
     [HttpPut("users")]
     public async Task<IActionResult> UpdateUser([FromBody] UserInput input)
     {
-        try
-        {
-            await _userService.UpdateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return NotFound(ex.Message);
-        }
+        await _userService.UpdateAsync(input);
+        return Ok();
     }
 
     [HttpDelete("users/{id}")]
@@ -116,18 +100,10 @@ public class AdminController : ControllerBase
     [HttpPatch("users/{id}/role")]
     public async Task<ActionResult> ChangeUserRole(int id, [FromBody] int roleId)
     {
-        try
-        {
-            await _userService.ChangeUserRoleAsync(id, roleId);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _userService.ChangeUserRoleAsync(id, roleId);
+        return Ok();
     }
 
-    // ========== РОЛИ ==========
     [HttpGet("roles")]
     public async Task<ActionResult<IEnumerable<RoleResponse>>> GetAllRoles()
     {
@@ -155,29 +131,15 @@ public class AdminController : ControllerBase
     [HttpPost("roles")]
     public async Task<ActionResult> CreateRole([FromBody] EditRoleInput input)
     {
-        try
-        {
-            await _roleService.CreateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _roleService.CreateAsync(input);
+        return Ok();
     }
 
     [HttpPut("roles")]
     public async Task<ActionResult> UpdateRole([FromBody] RoleInput input)
     {
-        try
-        {
-            await _roleService.UpdateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return NotFound(ex.Message);
-        }
+        await _roleService.UpdateAsync(input);
+        return Ok();
     }
 
     [HttpDelete("roles/{id}")]
@@ -187,7 +149,6 @@ public class AdminController : ControllerBase
         return NoContent();
     }
 
-    // ========== ЗАДАЧИ (ASSIGNMENTS) ==========
     [HttpGet("assignments")]
     public async Task<ActionResult<IEnumerable<AssignmentResponse>>> GetAllAssignments()
     {
@@ -216,29 +177,15 @@ public class AdminController : ControllerBase
     [HttpPost("assignments")]
     public async Task<ActionResult<int>> CreateAssignment([FromBody] AssignmentInput input)
     {
-        try
-        {
-            var newId = await _assignmentService.CreateAsync(input);
-            return Created($"/api/admin/assignments/{newId}", newId);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var newId = await _assignmentService.CreateAsync(input);
+        return Created($"/api/admin/assignments/{newId}", newId);
     }
 
     [HttpPut("assignments")]
     public async Task<ActionResult> UpdateAssignment([FromBody] ChangeAssigmentInput input)
     {
-        try
-        {
-            await _assignmentService.UpdateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return NotFound(ex.Message);
-        }
+        await _assignmentService.UpdateAsync(input);
+        return Ok();
     }
 
     [HttpDelete("assignments/{id}")]
@@ -251,32 +198,17 @@ public class AdminController : ControllerBase
     [HttpPatch("assignments/{id}/status")]
     public async Task<ActionResult> UpdateAssignmentStatus(int id, [FromBody] string status)
     {
-        try
-        {
-            await _assignmentService.UpdateStatusAsync(id, status);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _assignmentService.UpdateStatusAsync(id, status);
+        return Ok();
     }
 
     [HttpPatch("assignments/{id}/owner")]
     public async Task<ActionResult> ChangeAssignmentOwner(int id, [FromBody] int newUserId)
     {
-        try
-        {
-            await _assignmentService.ChangeOwnerAsync(id, newUserId);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _assignmentService.ChangeOwnerAsync(id, newUserId);
+        return Ok();
     }
 
-    // ========== КОМАНДЫ ==========
     [HttpGet("teams")]
     public async Task<ActionResult<IEnumerable<TeamResponse>>> GetAllTeams()
     {
@@ -304,29 +236,15 @@ public class AdminController : ControllerBase
     [HttpPost("teams")]
     public async Task<ActionResult> CreateTeam([FromBody] TeamInput input)
     {
-        try
-        {
-            await _teamService.CreateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _teamService.CreateAsync(input);
+        return Ok();
     }
 
     [HttpPut("teams")]
     public async Task<ActionResult> UpdateTeam([FromBody] TeamInput input)
     {
-        try
-        {
-            await _teamService.UpdateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return NotFound(ex.Message);
-        }
+        await _teamService.UpdateAsync(input);
+        return Ok();
     }
 
     [HttpDelete("teams/{id}")]
@@ -339,46 +257,24 @@ public class AdminController : ControllerBase
     [HttpPost("teams/{teamId}/users/{userId}")]
     public async Task<ActionResult> AddUserToTeam(int teamId, int userId)
     {
-        try
-        {
-            await _teamService.AddUserToTeamAsync(userId, teamId);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _teamService.AddUserToTeamAsync(userId, teamId);
+        return Ok();
     }
 
     [HttpDelete("teams/{teamId}/users/{userId}")]
     public async Task<ActionResult> RemoveUserFromTeam(int teamId, int userId)
     {
-        try
-        {
-            await _teamService.RemoveUserFromTeamAsync(teamId, userId);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _teamService.RemoveUserFromTeamAsync(teamId, userId);
+        return Ok();
     }
 
     [HttpPatch("teams/{teamId}/leader/{userId}")]
     public async Task<ActionResult> SetTeamLeader(int teamId, int userId)
     {
-        try
-        {
-            await _teamService.SetTeamLeaderAsync(teamId, userId);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _teamService.SetTeamLeaderAsync(teamId, userId);
+        return Ok();
     }
 
-    // ========== КОМАНДНЫЕ ЗАДАЧИ ==========
     [HttpGet("team-assignments/{teamId}")]
     public async Task<ActionResult<IEnumerable<TeamAssignmentResponse>>> GetTeamAssignmentsByTeam(int teamId)
     {
@@ -399,29 +295,15 @@ public class AdminController : ControllerBase
     [HttpPost("team-assignments")]
     public async Task<ActionResult<int>> CreateTeamAssignment([FromBody] CreateTeamAssignmentInput input)
     {
-        try
-        {
-            var newId = await _teamAssignmentService.CreateAsync(input);
-            return Created($"/api/admin/team-assignments/{newId}", newId);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var newId = await _teamAssignmentService.CreateAsync(input);
+        return Created($"/api/admin/team-assignments/{newId}", newId);
     }
 
     [HttpPut("team-assignments")]
     public async Task<ActionResult> UpdateTeamAssignment([FromBody] UpdateTeamAssignmentInput input)
     {
-        try
-        {
-            await _teamAssignmentService.UpdateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return NotFound(ex.Message);
-        }
+        await _teamAssignmentService.UpdateAsync(input);
+        return Ok();
     }
 
     [HttpDelete("team-assignments/{id}")]

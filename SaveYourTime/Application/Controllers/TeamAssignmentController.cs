@@ -36,29 +36,15 @@ public class TeamAssignmentController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<int>> Create([FromBody] CreateTeamAssignmentInput input)
     {
-        try
-        {
-            var newId = await _teamAssignmentService.CreateAsync(input);
-            return Created($"/api/TeamAssignment/{newId}", newId);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var newId = await _teamAssignmentService.CreateAsync(input);
+        return Created($"/api/TeamAssignment/{newId}", newId);
     }
 
     [HttpPut]
     public async Task<ActionResult> Update([FromBody] UpdateTeamAssignmentInput input)
     {
-        try
-        {
-            await _teamAssignmentService.UpdateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return NotFound(ex.Message);
-        }
+        await _teamAssignmentService.UpdateAsync(input);
+        return Ok();
     }
 
     [HttpDelete("{id}")]

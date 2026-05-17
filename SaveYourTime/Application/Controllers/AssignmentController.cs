@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Application.DTOs.Inputs;
@@ -45,33 +45,15 @@ public class AssignmentController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<int>> Create([FromBody] AssignmentInput input)
     {
-        try
-        {
-            var newId = await _assignmentService.CreateAsync(input);
-            return Created($"/api/Assignment/{newId}", newId);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Unauthorized(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var newId = await _assignmentService.CreateAsync(input);
+        return Created($"/api/Assignment/{newId}", newId);
     }
 
     [HttpPut]
     public async Task<ActionResult<AssignmentResponse>> Update([FromBody] ChangeAssigmentInput input)
     {
-        try
-        {
-            await _assignmentService.UpdateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return NotFound(ex.Message);
-        }
+        await _assignmentService.UpdateAsync(input);
+        return Ok();
     }
 
     [HttpDelete("{id}")]
@@ -88,32 +70,17 @@ public class AssignmentController : ControllerBase
              string status
         )
     {
-        try
-        {
-            await _assignmentService.UpdateStatusAsync(assigmentId, status);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _assignmentService.UpdateStatusAsync(assigmentId, status);
+        return Ok();
     }
 
     [HttpPatch("owner")]
     public async Task<ActionResult<AssignmentResponse>> ChangeOwner
-    (
-        int assigmentId, 
-        int newUserId)
+        (
+            int assigmentId, 
+            int newUserId)
     {
-        try
-        {
-            await _assignmentService.ChangeOwnerAsync(assigmentId, newUserId);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _assignmentService.ChangeOwnerAsync(assigmentId, newUserId);
+        return Ok();
     }
 }
-
