@@ -55,29 +55,15 @@ public class TeamController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> Create([FromBody] TeamInput input)
     {
-        try
-        {
-            await _teamService.CreateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _teamService.CreateAsync(input);
+        return Ok();
     }
 
     [HttpPut]
     public async Task<ActionResult> Update([FromBody] TeamInput input)
     {
-        try
-        {
-            await _teamService.UpdateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return NotFound(ex.Message);
-        }
+        await _teamService.UpdateAsync(input);
+        return Ok();
     }
 
     [HttpPost("{id}/avatar")]
@@ -143,42 +129,21 @@ public class TeamController : ControllerBase
     [HttpPost("{id}/users/{userId}")]
     public async Task<ActionResult> AddUser(int id, int userId)
     {
-        try
-        {
-            await _teamService.AddUserToTeamAsync(userId, id);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _teamService.AddUserToTeamAsync(userId, id);
+        return Ok();
     }
 
     [HttpDelete("{id}/users/{userId}")]
     public async Task<ActionResult> RemoveUserFromTeam(int id, int userId)
     {
-        try
-        {
-            await _teamService.RemoveUserFromTeamAsync(id, userId);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _teamService.RemoveUserFromTeamAsync(id, userId);
+        return Ok();
     }
 
     [HttpPatch("{id}/leader/{userId}")]
     public async Task<ActionResult> SetLeader(int id, int userId)
     {
-        try
-        {
-            await _teamService.SetTeamLeaderAsync(id, userId);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _teamService.SetTeamLeaderAsync(id, userId);
+        return Ok();
     }
 }

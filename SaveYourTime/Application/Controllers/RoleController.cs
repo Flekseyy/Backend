@@ -47,29 +47,15 @@ public class RoleController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<RoleResponse>> Create([FromBody] EditRoleInput input)
     {
-        try
-        {
-            await _roleService.CreateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _roleService.CreateAsync(input);
+        return Ok();
     }
     
     [HttpPut]
     public async Task<ActionResult<RoleResponse>> Update([FromBody] RoleInput input)
     {
-        try
-        {
-            await _roleService.UpdateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return NotFound(ex.Message);
-        }
+        await _roleService.UpdateAsync(input);
+        return Ok();
     }
     
     [HttpDelete("{id}")]
