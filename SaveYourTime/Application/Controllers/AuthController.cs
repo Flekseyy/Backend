@@ -21,40 +21,26 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] UserInput input)
     {
-        try
-        {
-            if (string.IsNullOrWhiteSpace(input.Username) || input.Username.Length < 3)
-                return BadRequest("Имя пользователя должно содержать минимум 3 символа");
+        if (string.IsNullOrWhiteSpace(input.Username) || input.Username.Length < 3)
+            throw new ArgumentException("Имя пользователя должно содержать минимум 3 символа");
 
-            if (string.IsNullOrWhiteSpace(input.Email) || !IsValidEmail(input.Email))
-                return BadRequest("Некорректный email");
+        if (string.IsNullOrWhiteSpace(input.Email) || !IsValidEmail(input.Email))
+            throw new ArgumentException("Некорректный email");
 
-            if (string.IsNullOrWhiteSpace(input.Password) || input.Password.Length < 6)
-                return BadRequest("Пароль должен содержать минимум 6 символов");
+        if (string.IsNullOrWhiteSpace(input.Password) || input.Password.Length < 6)
+            throw new ArgumentException("Пароль должен содержать минимум 6 символов");
 
-            await _authService.RegisterAsync(input);
-            
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _authService.RegisterAsync(input);
+        
+        return Ok();
     }
 
     [HttpPost("login")]
     public async Task<ActionResult<UserResponse>> Login([FromBody] LoginInput input)
     {
-        try
-        {
-            var response = await _authService.LoginAsync(input.Email, input.Password, HttpContext);
-            
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            return Unauthorized(ex.Message);
-        }
+        var response = await _authService.LoginAsync(input.Email, input.Password, HttpContext);
+        
+        return Ok(response);
     }
 
     [HttpPost("logout")]

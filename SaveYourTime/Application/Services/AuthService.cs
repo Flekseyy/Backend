@@ -51,17 +51,18 @@ public class AuthService : IAuthService
 
         await _userRepository.UpdateLastLoginAsync(user.Id);
         
-        await SetAuthCookie(user.Id, user.Username, user.Email, httpContext);
+        await SetAuthCookie(user.Id, user.Username, user.Email, user.Role?.Name ?? "User", httpContext);
         return MapToResponse(user);
     }
     
-    private async Task SetAuthCookie(int userId, string username, string email, HttpContext httpContext)
+    private async Task SetAuthCookie(int userId, string username, string email, string roleName, HttpContext httpContext)
     {
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
             new Claim(ClaimTypes.Name, username),
-            new Claim(ClaimTypes.Email, email)
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.Role, roleName)
         };
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WebApplication1.Infrastructure.Middlewares;
 
@@ -31,10 +32,20 @@ public class ExceptionHandlingMiddleware
             _logger.LogWarning(ex, "Validation error");
             await HandleExceptionAsync(context, HttpStatusCode.BadRequest, ex.Message);
         }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid argument");
+            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, ex.Message);
+        }
         catch (KeyNotFoundException ex)
         {
             _logger.LogWarning(ex, "Resource not found");
             await HandleExceptionAsync(context, HttpStatusCode.NotFound, ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Invalid operation");
+            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, ex.Message);
         }
         catch (Exception ex)
         {

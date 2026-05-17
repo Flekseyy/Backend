@@ -37,39 +37,24 @@ public class UserController : ControllerBase
 
     [HttpGet("filter")]
     public async Task<ActionResult<IEnumerable<UserResponse>>> GetByFilter(
-        [FromQuery] string username,
-        [FromQuery] int? roleId)
+        [FromQuery] FilterUserInput input)
     {
-        var users = await _userService.GetByFilterAsync(username, roleId);
+        var users = await _userService.GetByFilterAsync(input.Username, input.RoleId);
         return Ok(users);
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] UserInput input)
     {
-        try
-        {
-            await _userService.CreateAsync(input);
-            return Created();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _userService.CreateAsync(input);
+        return Created();
     }
 
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UserInput input)
     {
-        try
-        {
-            await _userService.UpdateAsync(input);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return NotFound(ex.Message);
-        }
+        await _userService.UpdateAsync(input);
+        return Ok();
     }
 
     [HttpDelete("{id}")]
@@ -82,14 +67,7 @@ public class UserController : ControllerBase
     [HttpPatch("{id}/role")]
     public async Task<ActionResult<UserResponse>> ChangeUserRole(int userId, [FromBody] int roleId)
     {
-        try
-        {
-            await _userService.ChangeUserRoleAsync(userId, roleId);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _userService.ChangeUserRoleAsync(userId, roleId);
+        return Ok();
     }
 }

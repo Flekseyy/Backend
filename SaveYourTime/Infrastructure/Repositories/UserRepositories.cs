@@ -28,9 +28,13 @@ public class UserRepository : IUserRepository
             .Include(u => u.LeadingTeams)
             .AsQueryable();
 
-        return await query
-            .Where(u => u.Username == username || u.RoleId == roleId)
-            .ToListAsync();
+        if (!string.IsNullOrWhiteSpace(username))
+            query = query.Where(u => u.Username.Contains(username));
+
+        if (roleId.HasValue)
+            query = query.Where(u => u.RoleId == roleId.Value);
+
+        return await query.ToListAsync();
     }
 
     public async Task CreateAsync(User user)
@@ -69,7 +73,9 @@ public class UserRepository : IUserRepository
         await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
 
     public async Task<User?> GetByEmailAsync(string email) =>
-        await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        await _context.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.Email == email);
 
     public async Task<bool> ExistsByUsernameAsync(string username) =>
         await _context.Users.AnyAsync(u => u.Username == username);

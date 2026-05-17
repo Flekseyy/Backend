@@ -39,6 +39,22 @@ public class TeamRepository : ITeamRepository
             .Include(a => a.Priority)
             .ToListAsync();
 
+    public async Task<IEnumerable<Team>> GetByFilterAsync(string? name, int? leaderId)
+    {
+        var query = _context.Teams
+            .Include(t => t.Leader)
+            .Include(t => t.Members)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(name))
+            query = query.Where(t => t.Name.Contains(name));
+
+        if (leaderId.HasValue)
+            query = query.Where(t => t.LeaderId == leaderId.Value);
+
+        return await query.ToListAsync();
+    }
+
     public async Task<Team> CreateAsync(Team team)
     {
         _context.Teams.Add(team);
