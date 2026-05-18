@@ -49,7 +49,7 @@ public class UserService : IUserService
 
         if (await _userRepository.ExistsByEmailAsync(input.Email))
             throw new Exception("Email уже зарегистрирован");
-        
+
         var user = new User
         {
             Username = input.Username,
@@ -58,7 +58,7 @@ public class UserService : IUserService
             RoleId = 2,
             CreatedAt = DateTime.UtcNow
         };
-        
+
         await _userRepository.CreateAsync(user);
     }
 
@@ -85,7 +85,7 @@ public class UserService : IUserService
         var role = await _roleRepository.GetByIdAsync(roleId);
         if (role == null)
             throw new Exception("Роль не найдена");
-        
+
         await _userRepository.ChangeRoleAsync(userId, roleId);
     }
 
@@ -97,7 +97,8 @@ public class UserService : IUserService
             user.Username,
             user.Email,
             user.CreatedAt,
-            completedCount
+            completedCount,
+            user.RoleId
         );
     }
 }

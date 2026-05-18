@@ -50,11 +50,11 @@ public class AuthService : IAuthService
             throw new Exception("Неверный email или пароль");
 
         await _userRepository.UpdateLastLoginAsync(user.Id);
-        
+
         await SetAuthCookie(user.Id, user.Username, user.Email, user.Role?.Name ?? "User", httpContext);
         return MapToResponse(user);
     }
-    
+
     private async Task SetAuthCookie(int userId, string username, string email, string roleName, HttpContext httpContext)
     {
         var claims = new[]
@@ -71,10 +71,10 @@ public class AuthService : IAuthService
         await httpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
             principal,
-            new AuthenticationProperties 
-            { 
-                ExpiresUtc = DateTime.UtcNow.AddDays(7), 
-                IsPersistent = true 
+            new AuthenticationProperties
+            {
+                ExpiresUtc = DateTime.UtcNow.AddDays(7),
+                IsPersistent = true
             });
     }
 
@@ -84,6 +84,7 @@ public class AuthService : IAuthService
             user.Username,
             user.Email ?? string.Empty,
             user.CreatedAt,
-            user.Assignments?.Count(a => a.StatusId == 3) ?? 0
+            user.Assignments?.Count(a => a.StatusId == 3) ?? 0,
+            user.RoleId
         );
 }

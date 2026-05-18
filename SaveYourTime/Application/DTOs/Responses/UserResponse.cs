@@ -5,5 +5,6 @@ public record UserResponse(
     string UserName,
     string Email,
     DateTime CreatedAt,
-    int CompletedTasksCount
+    int CompletedTasksCount,
+    int? RoleId = null
 );
